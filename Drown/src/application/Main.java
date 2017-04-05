@@ -22,7 +22,7 @@ public class Main extends Application {
 			Scene scene = new Scene(rootElement,1600,900);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			
-			primaryStage.setTitle("Kom nu Drone");
+			primaryStage.setTitle("Drone is love, drone is life");
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
