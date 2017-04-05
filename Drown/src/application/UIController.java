@@ -30,13 +30,13 @@ import javafx.scene.image.ImageView;
 public class UIController {
 	//GUI Related variables
 	@FXML
-	private ImageView originalFrame;
+	private ImageView mainIW;
 	
 	@FXML
-	private ImageView maskedFrame;
+	private ImageView maskIW;
 	
 	@FXML
-	private ImageView morphFrame;
+	private ImageView morphIW;
 	
 	@FXML
 	private Button droneConnect;
@@ -55,16 +55,13 @@ public class UIController {
 	
 	//Other variables
 	BufferedImage newFrame;
-	Mat wcFrame;
 	private VideoCapture capture = new VideoCapture();
 	private static int cameraId = 0;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
 
 	//Timers
-	private ScheduledExecutorService origFrameTimer;
-	private ScheduledExecutorService maskedFrameTimer;
-	private ScheduledExecutorService morphFrameTimer;
+	private ScheduledExecutorService frameGrabTimer;
 	private ScheduledExecutorService trackStatusTimer;
 	
 	//PID variables
@@ -86,7 +83,7 @@ public class UIController {
 	private void connectDrone() {
 		
 		//Init PID contrøller
-		center = (int) originalFrame.getFitWidth() / 2;
+		//center = (int) mainIW.getFitWidth() / 2;
 		
 		logWrite("Value of center: " + center);
 		
@@ -104,31 +101,12 @@ public class UIController {
 		Thread.sleep(5000);
 		//System.out.println("Efter sleep");
 		logWrite("Started proces to grab frames for main picture");
-        Runnable origFrameGrabber = () -> {
-            BufferedImage imageToShow = processImage("orig");
-            updateImageView(originalFrame, SwingFXUtils.toFXImage(imageToShow, null));
+        Runnable frameGrabber = () -> {
+            processImage();
         };
 		
-		this.origFrameTimer = Executors.newSingleThreadScheduledExecutor();
-		this.origFrameTimer.scheduleAtFixedRate(origFrameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-		
-		logWrite("Started proces to grab frames for masked stream");
-        Runnable maskedFrameGrabber = () -> {
-            BufferedImage imageToShow = processImage("mask");
-            updateImageView(maskedFrame, SwingFXUtils.toFXImage(imageToShow, null));
-        };
-		
-		this.maskedFrameTimer = Executors.newSingleThreadScheduledExecutor();
-		this.maskedFrameTimer.scheduleAtFixedRate(maskedFrameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-		
-        Runnable morphFrameGrabber = () -> {
-            BufferedImage imageToShow = processImage("morph");
-            updateImageView(morphFrame, SwingFXUtils.toFXImage(imageToShow, null));
-        };
-		
-		this.morphFrameTimer = Executors.newSingleThreadScheduledExecutor();
-		this.morphFrameTimer.scheduleAtFixedRate(morphFrameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-		
+		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
+		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 		droneActive = true;
 		
 	}catch(Exception e) {
@@ -151,22 +129,15 @@ public class UIController {
 		
 		logWrite("Connected to webcam!");
 		
-		logWrite("Started proces to grab frames for main picture");
+		logWrite("Started proces to grab frames");
 		
-        Runnable origFrameGrabber = () -> {
+        Runnable frameGrabber = () -> {
         	grabFrame();
-        	
-            BufferedImage mainFrame = processImage("orig");
-            BufferedImage morphedFrame = processImage("morph");
-            BufferedImage maskFrame = processImage("mask");
-            
-            updateImageView(originalFrame, SwingFXUtils.toFXImage(mainFrame, null));
-            updateImageView(maskedFrame, SwingFXUtils.toFXImage(maskFrame, null));
-            updateImageView(morphFrame, SwingFXUtils.toFXImage(morphedFrame, null));
+            processImage();
         };
 		
-		this.origFrameTimer = Executors.newSingleThreadScheduledExecutor();
-		this.origFrameTimer.scheduleAtFixedRate(origFrameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
+		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 		
 		
 	}
@@ -198,20 +169,22 @@ public class UIController {
 	
 	
 	//REWRITE
-	private BufferedImage processImage(String type) {
+	private void processImage() {
 		
-		BufferedImage imageToShow = null;
+        BufferedImage mainFrame;
+        BufferedImage morphedFrame;
+        BufferedImage maskFrame;
 
 		
 		if(newFrame != null) {
 			
-			if(type.equals("mask")) {
 			
 			Mat frame = new Mat();
 			frame = Utilities.bufferedImage2Mat(newFrame);
 			Mat blurredImage = new Mat();
 			Mat hsvImage = new Mat();
 			Mat mask = new Mat();
+			Mat morphOutput = new Mat();
 			
 			Imgproc.blur(frame, blurredImage, new Size(7,7));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
@@ -220,29 +193,8 @@ public class UIController {
 			Scalar maxValues = new Scalar(180, 200, 255);
 			Core.inRange(hsvImage, minValues, maxValues, mask);
 			
-			
-			return Utilities.matToBufferedImage(mask);
-			
-			}
-			
-			imageToShow = newFrame;
-		}
-		
-		if(type.equals("morph")) {
-			
-			Mat frame = new Mat();
-			frame = Utilities.bufferedImage2Mat(newFrame);
-			Mat blurredImage = new Mat();
-			Mat hsvImage = new Mat();
-			Mat mask = new Mat();
-			Mat morphOutput = new Mat();
-			
-			Imgproc.blur(frame, blurredImage, new Size(7,7));
-			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
-			
-			Scalar minValues = new Scalar(160, 113, 89);
-			Scalar maxValues = new Scalar(180, 255, 255);
-			Core.inRange(hsvImage, minValues, maxValues, mask);
+			maskFrame = Utilities.matToBufferedImage(mask);
+			updateImageView(maskIW, SwingFXUtils.toFXImage(maskFrame, null));
 			
 			Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24));
 			Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12));
@@ -253,43 +205,15 @@ public class UIController {
 			Imgproc.dilate(morphOutput, morphOutput, dilateElement);
 			Imgproc.dilate(morphOutput, morphOutput, dilateElement);
 			
-			return Utilities.matToBufferedImage(morphOutput);
-		}
-			if(type.equals("orig")) {
-				
-			Mat frame = new Mat();
-			frame = Utilities.bufferedImage2Mat(newFrame);
-			Mat blurredImage = new Mat();
-			Mat hsvImage = new Mat();
-			Mat mask = new Mat();
-			Mat morphOutput = new Mat();
-			
-			Imgproc.blur(frame, blurredImage, new Size(7,7));
-			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
-			
-			Scalar minValues = new Scalar(160, 113, 89);
-			Scalar maxValues = new Scalar(180, 255, 255);
-			Core.inRange(hsvImage, minValues, maxValues, mask);
-			
-			Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24));
-			Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12));
-			
-			Imgproc.erode(mask, morphOutput, erodeElement);
-			Imgproc.erode(morphOutput, morphOutput, erodeElement);
-			
-			Imgproc.dilate(morphOutput, morphOutput, dilateElement);
-			Imgproc.dilate(morphOutput, morphOutput, dilateElement);
+			morphedFrame = Utilities.matToBufferedImage(morphOutput);
+			updateImageView(morphIW, SwingFXUtils.toFXImage(morphedFrame, null));
 			
 			frame = findAndDrawBalls(morphOutput, frame);
-				
-			return Utilities.matToBufferedImage(frame);
-			}
 			
-		
-		
-		
-		
-		return imageToShow;
+			mainFrame = Utilities.matToBufferedImage(frame);
+			updateImageView(mainIW, SwingFXUtils.toFXImage(mainFrame, null));
+			
+		}
 		
 	}
 	
@@ -330,8 +254,10 @@ public class UIController {
 		try
 		{
 			// stop the timers
-			this.origFrameTimer.shutdown();
-			this.origFrameTimer.awaitTermination(33, TimeUnit.MILLISECONDS);
+			this.frameGrabTimer.shutdown();
+			this.frameGrabTimer.awaitTermination(33, TimeUnit.MILLISECONDS);
+			this.trackStatusTimer.shutdown();
+			this.trackStatusTimer.awaitTermination(33, TimeUnit.MILLISECONDS);
 
 		}
 		catch (InterruptedException e)

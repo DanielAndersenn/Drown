@@ -11,21 +11,27 @@
    <top>
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <ImageView fx:id="maskedFrame" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fx:id="morphFrame" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="maskIW" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="morphIW" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </HBox>
    </top>
    <bottom>
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-               <Button fx:id="droneConnect" mnemonicParsing="false" onAction="#connectDrone" text="Connect to Drone" />
+               <Button fx:id="droneConnect" mnemonicParsing="false" onAction="#connectDrone" text="Connect to Drone">
+               <HBox.margin>
+                  <Insets top="70.0" />
+               </HBox.margin></Button>
             <Button fx:id="connectWB" mnemonicParsing="false" onAction="#connectWB" text="Connect to Webcam">
                <HBox.margin>
-                  <Insets left="30.0" />
+                  <Insets left="30.0" top="70.0" />
                </HBox.margin>
             </Button>
          </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
       </HBox>
    </bottom>
    <right>
@@ -35,6 +41,6 @@
          </BorderPane.margin></TextArea>
    </right>
    <left>
-      <ImageView fx:id="originalFrame" fitHeight="600.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+      <ImageView fx:id="mainIW" fitHeight="600.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
    </left>
 </BorderPane>
