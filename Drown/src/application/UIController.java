@@ -24,25 +24,41 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class UIController {
 	//GUI Related variables
+	//Imageviews
 	@FXML
 	private ImageView mainIW;
-	
 	@FXML
 	private ImageView maskIW;
-	
 	@FXML
 	private ImageView morphIW;
 	
+	//Buttons
 	@FXML
 	private Button droneConnect;
-	
 	@FXML
 	private Button connectWB;
+	@FXML
+	private Button updateHSVb;
+	
+	//Text Fields
+	@FXML
+	private TextField minH;
+	@FXML
+	private TextField minS;
+	@FXML
+	private TextField minV;
+	@FXML
+	private TextField maxH;
+	@FXML
+	private TextField maxS;
+	@FXML
+	private TextField maxV;
 	
 	@FXML
 	TextArea droneData;
@@ -58,6 +74,8 @@ public class UIController {
 	private VideoCapture capture = new VideoCapture();
 	private static int cameraId = 0;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+	Scalar minValues = new Scalar(0, 150, 100);
+	Scalar maxValues = new Scalar(25, 200, 200); 
 
 
 	//Timers
@@ -69,12 +87,16 @@ public class UIController {
 	
 	public UIController() {
 		
+		
+		
         Runnable trackStatus = () -> {
             if(objectTracked) logWrite("Currently tracking object!");
         };
         
 		this.trackStatusTimer = Executors.newSingleThreadScheduledExecutor();
 		this.trackStatusTimer.scheduleAtFixedRate(trackStatus, 0, 1000, TimeUnit.MILLISECONDS);
+		
+		
         
 	}
 	
@@ -82,6 +104,7 @@ public class UIController {
 	@FXML
 	private void connectDrone() {
 		
+		refreshHSVUI();
 		//Init PID contrøller
 		//center = (int) mainIW.getFitWidth() / 2;
 		
@@ -100,7 +123,7 @@ public class UIController {
 		//System.out.println("Før sleep");
 		Thread.sleep(5000);
 		//System.out.println("Efter sleep");
-		logWrite("Started proces to grab frames for main picture");
+		logWrite("Started process to grab frames for main picture");
         Runnable frameGrabber = () -> {
             processImage();
         };
@@ -124,7 +147,7 @@ public class UIController {
 	//Method linked to onClick button "Connect to Webcam"
 	@FXML
 	private void connectWB() {
-		
+		refreshHSVUI();
 		this.capture.open(cameraId);
 		
 		logWrite("Connected to webcam!");
@@ -139,6 +162,22 @@ public class UIController {
 		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
 		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 		
+		
+	}
+	
+	//Method linked to onClick button "Update HSV values"
+	@FXML
+	private void updateHSV() {
+		
+		minValues = new Scalar(Double.valueOf(minH.getText()),
+				Double.valueOf(minS.getText()),
+				Double.valueOf(minV.getText()));
+		maxValues = new Scalar(Double.valueOf(maxH.getText()),
+				Double.valueOf(maxS.getText()),
+				Double.valueOf(maxV.getText()));
+		
+	
+		refreshHSVUI();
 		
 	}
 	
@@ -168,7 +207,6 @@ public class UIController {
 	}
 	
 	
-	//REWRITE
 	private void processImage() {
 		
         BufferedImage mainFrame;
@@ -189,8 +227,8 @@ public class UIController {
 			Imgproc.blur(frame, blurredImage, new Size(7,7));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
 			//20,50
-			Scalar minValues = new Scalar(160, 60, 50);
-			Scalar maxValues = new Scalar(180, 200, 255);
+			//
+
 			Core.inRange(hsvImage, minValues, maxValues, mask);
 			
 			maskFrame = Utilities.matToBufferedImage(mask);
@@ -208,8 +246,9 @@ public class UIController {
 			morphedFrame = Utilities.matToBufferedImage(morphOutput);
 			updateImageView(morphIW, SwingFXUtils.toFXImage(morphedFrame, null));
 			
-			frame = findAndDrawBalls(morphOutput, frame);
+			frame = findAndDrawContours(morphOutput, frame);
 			
+			Core.flip(frame, frame, 1);
 			mainFrame = Utilities.matToBufferedImage(frame);
 			updateImageView(mainIW, SwingFXUtils.toFXImage(mainFrame, null));
 			
@@ -218,7 +257,7 @@ public class UIController {
 	}
 	
 	
-	private Mat findAndDrawBalls(Mat maskedImage, Mat frame) {
+	private Mat findAndDrawContours(Mat maskedImage, Mat frame) {
 		
 		List<MatOfPoint> contours = new ArrayList<>();
 		Mat hierachy = new Mat();
@@ -270,6 +309,22 @@ public class UIController {
 		
 	}
 
+	
+	public void refreshHSVUI() {
+		
+		minH.setText(String.valueOf( (int) minValues.val[0]));
+		minS.setText(String.valueOf( (int) minValues.val[1]));
+		minV.setText(String.valueOf( (int) minValues.val[2]));
+		maxH.setText(String.valueOf( (int) maxValues.val[0]));
+		maxS.setText(String.valueOf( (int) maxValues.val[1]));
+		maxV.setText(String.valueOf( (int) maxValues.val[2]));
+		
+		logWrite("H between: " + String.valueOf( (int) minValues.val[0]) + " - " + String.valueOf( (int) maxValues.val[0]));
+		logWrite("S between: " + String.valueOf( (int) minValues.val[1]) + " - " + String.valueOf( (int) maxValues.val[1]));
+		logWrite("V between: " + String.valueOf( (int) minValues.val[2]) + " - " + String.valueOf( (int) maxValues.val[2]));
+		
+	}
+	
 	
 	protected void setClosed()
 	{
