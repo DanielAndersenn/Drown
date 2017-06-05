@@ -12,9 +12,14 @@ import java.util.concurrent.TimeUnit;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint3;
+import org.opencv.core.MatOfPoint3f;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.video.BackgroundSubtractor;
+import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
 
 import de.yadrone.base.ARDrone;
@@ -74,8 +79,8 @@ public class UIController {
 	private VideoCapture capture = new VideoCapture();
 	private static int cameraId = 0;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-	Scalar minValues = new Scalar(0, 150, 100);
-	Scalar maxValues = new Scalar(25, 200, 200); 
+	Scalar minValues = new Scalar(1, 70, 70);
+	Scalar maxValues = new Scalar(5, 255, 255); 
 
 
 	//Timers
@@ -117,7 +122,7 @@ public class UIController {
 		drone.setHorizontalCamera();
 		drone.start();
 		drone.getCommandManager().setVideoChannel(VideoChannel.HORI);
-		drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P);	
+
 		drone.getVideoManager().addImageListener((BufferedImage image) -> {newFrame = image;});
 		logWrite("Sleeping thread for 5 sec");
 		//System.out.println("Før sleep");
@@ -224,15 +229,20 @@ public class UIController {
 			Mat mask = new Mat();
 			Mat morphOutput = new Mat();
 			
+			
+			Core.flip(frame, frame, 1);
+			
 			Imgproc.blur(frame, blurredImage, new Size(7,7));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
 			//20,50
-			//
 
 			Core.inRange(hsvImage, minValues, maxValues, mask);
 			
 			maskFrame = Utilities.matToBufferedImage(mask);
 			updateImageView(maskIW, SwingFXUtils.toFXImage(maskFrame, null));
+			
+			
+			
 			
 			Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24));
 			Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12));
@@ -246,9 +256,11 @@ public class UIController {
 			morphedFrame = Utilities.matToBufferedImage(morphOutput);
 			updateImageView(morphIW, SwingFXUtils.toFXImage(morphedFrame, null));
 			
+			
+			
+			
 			frame = findAndDrawContours(morphOutput, frame);
 			
-			Core.flip(frame, frame, 1);
 			mainFrame = Utilities.matToBufferedImage(frame);
 			updateImageView(mainIW, SwingFXUtils.toFXImage(mainFrame, null));
 			
