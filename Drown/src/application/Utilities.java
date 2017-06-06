@@ -2,6 +2,8 @@ package application;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -9,6 +11,7 @@ import org.opencv.core.Mat;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 
 public class Utilities {
@@ -63,5 +66,4 @@ public class Utilities {
 			property.set(value);
 		});
 	}
-	
 }

@@ -1,6 +1,9 @@
 package application;
 	
 import org.opencv.core.Core;
+import de.yadrone.base.ARDrone;
+import de.yadrone.base.IARDrone;
+import de.yadrone.base.command.VideoChannel;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -11,11 +14,17 @@ import javafx.scene.layout.BorderPane;
 
 
 public class Main extends Application {
+	
+	public final static int IMAGE_WIDTH = 1280; // 640 or 1280
+	public final static int IMAGE_HEIGHT = 720; // 360 or 720
+	
+	public final static int TOLERANCE = 120;
+	
+	private IARDrone drone = null;
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			
-			
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI.fxml"));
 			
 			BorderPane rootElement = (BorderPane) loader.load();
@@ -26,7 +35,7 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
-			UIController controller = loader.getController();
+			MainController controller = loader.getController();
 			
 			primaryStage.setOnCloseRequest((new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we)
@@ -42,7 +51,6 @@ public class Main extends Application {
 	
 	public static void main(String[] args) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		
 		launch(args);
 	}
 }
