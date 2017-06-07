@@ -22,10 +22,14 @@ import org.opencv.video.BackgroundSubtractor;
 import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
 
+import com.google.zxing.Result;
+
+import de.yadrone.apps.paperchase.TagListener;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
+import de.yadrone.base.video.ImageListener;
 import de.yadrone.base.video.xuggler.XugglerDecoder;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -35,7 +39,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class MainController {
+public class MainController  {
 	// GUI Related variables
 	// Imageviews
 	@FXML
@@ -135,6 +139,8 @@ public class MainController {
 			droneActive = true;
 			DroneController dc = new DroneController(drone);
 			QRController qc = new QRController();
+			qc.addListener(dc);
+			drone.getVideoManager().addImageListener(qc);
 			dc.start();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -18,7 +18,7 @@ public class Main extends Application {
 	public final static int IMAGE_WIDTH = 1280; // 640 or 1280
 	public final static int IMAGE_HEIGHT = 720; // 360 or 720
 	
-	public final static int TOLERANCE = 120;
+	public final static int TOLERANCE = 60;
 	
 	private IARDrone drone = null;
 	
@@ -52,5 +52,8 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		launch(args);
+		
+		//Mathias
+		
 	}
 }
