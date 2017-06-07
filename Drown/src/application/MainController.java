@@ -80,11 +80,17 @@ public class MainController {
 	private VideoCapture capture = new VideoCapture();
 	private static int cameraId = 0;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+	// Scalar values for webcam v real ring
+	// Scalar minValues = new Scalar(1, 0, 0);
+	// Scalar maxValues = new Scalar(6, 150, 160);
+
+	// Scalar values for webcam v paper ring
 	Scalar minValues = new Scalar(1, 70, 70);
 	Scalar maxValues = new Scalar(5, 255, 255);
 
 	// Timers
 	private ScheduledExecutorService frameGrabTimer;
+	private ScheduledExecutorService houghTimer;
 	private ScheduledExecutorService trackStatusTimer;
 
 	// PID variables
@@ -109,7 +115,7 @@ public class MainController {
 		// center = (int) mainIW.getFitWidth() / 2;
 
 		logWrite("Value of center: " + center);
-		
+
 		try {
 			drone = new ARDrone("192.168.1.1", new XugglerDecoder());
 			System.out.println("Initialized drone");
@@ -163,6 +169,12 @@ public class MainController {
 
 		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
 		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+		Runnable houghGrabber = () -> {
+			findAndDrawCircle();
+		};
+
+		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 5, 5, TimeUnit.SECONDS);
 
 	}
 
@@ -224,44 +236,65 @@ public class MainController {
 			maskFrame = Utilities.matToBufferedImage(mask);
 			updateImageView(maskIW, SwingFXUtils.toFXImage(maskFrame, null));
 
-			Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24));
-			Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12));
-
-			Imgproc.erode(mask, morphOutput, erodeElement);
-			Imgproc.erode(morphOutput, morphOutput, erodeElement);
-
-			Imgproc.dilate(morphOutput, morphOutput, dilateElement);
-			Imgproc.dilate(morphOutput, morphOutput, dilateElement);
-
-			morphedFrame = Utilities.matToBufferedImage(morphOutput);
-			updateImageView(morphIW, SwingFXUtils.toFXImage(morphedFrame, null));
-
-			frame = findAndDrawContours(morphOutput, frame);
-
 			mainFrame = Utilities.matToBufferedImage(frame);
-			updateImageView(mainIW, SwingFXUtils.toFXImage(mainFrame, null));
+			updateImageView(morphIW, SwingFXUtils.toFXImage(mainFrame, null));
 
 		}
 
 	}
 
-	private Mat findAndDrawContours(Mat maskedImage, Mat frame) {
+	private void findAndDrawCircle() {
+		System.out.println("Test???");
+		BufferedImage houghFrame;
+		Mat frame = new Mat();
+		Mat blurredImage = new Mat();
+		Mat hsvImage = new Mat();
+		Mat mask = new Mat();
+		Mat hough = new Mat();
+		frame = Utilities.bufferedImage2Mat(newFrame);
+		System.out.println("Test???");
+		if (newFrame != null) {
 
-		List<MatOfPoint> contours = new ArrayList<>();
-		Mat hierachy = new Mat();
+			Core.flip(frame, frame, 1);
 
-		Imgproc.findContours(maskedImage, contours, hierachy, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+			Imgproc.blur(frame, blurredImage, new Size(3, 3));
+			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
+			System.out.println("Test???");
 
-		if (hierachy.size().height > 0 && hierachy.size().width > 0) {
-			objectTracked = true;
-			for (int i = 0; i >= 0; i = (int) hierachy.get(0, i)[0]) {
-				Imgproc.drawContours(frame, contours, i, new Scalar(250, 0, 0));
+			Core.inRange(hsvImage, minValues, maxValues, mask);
+			System.out.println("Test???");
+			// Imgproc.cvtColor(mask, hough, Imgproc.COLOR_BGR2GRAY);
+
+			Mat circles = new Mat();
+			Imgproc.HoughCircles(mask, circles, Imgproc.CV_HOUGH_GRADIENT, 2, 100, 200, 20, 30, 200);
+			System.out.println("Test???");
+			System.out.println(circles);
+
+			System.out.println("#rows " + circles.rows() + " #cols " + circles.cols());
+			double x = 0.0;
+			double y = 0.0;
+			int r = 0;
+
+			for (int i = 0; i < circles.rows(); i++) {
+				System.out.println("Er vi i loop?");
+				double[] data = circles.get(i, 0);
+				for (int j = 0; j < data.length; j++) {
+					System.out.println("Er vi i loop2?");
+					x = data[0];
+					y = data[1];
+					r = (int) data[2];
+					System.out.println("Value of x: " + x + " y: " + y + " r: " + r);
+				}
 			}
-		} else {
-			objectTracked = false;
-			return frame;
+
+			Point center = new Point(x, y);
+
+			Imgproc.circle(frame, center, r, new Scalar(255, 255, 255), 15);
+			Imgproc.circle(frame, center, 3, new Scalar(0, 0, 0), -1);
+
+			houghFrame = Utilities.matToBufferedImage(frame);
+			updateImageView(mainIW, SwingFXUtils.toFXImage(houghFrame, null));
 		}
-		return frame;
 	}
 
 	private void updateImageView(ImageView view, Image image) {
