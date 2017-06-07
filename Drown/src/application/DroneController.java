@@ -30,7 +30,7 @@ public class DroneController extends Thread implements TagListener {
 	public void run(){
 		drone.getCommandManager().setOutdoor(false, false);
 		drone.getCommandManager().takeOff();
-		drone.getCommandManager().up(100).doFor(2000);
+		//drone.getCommandManager().up(100).doFor(2000);
 		drone.getCommandManager().hover();
 		while(!doStop){
 			try {
@@ -42,12 +42,13 @@ public class DroneController extends Thread implements TagListener {
 					System.out.println("spin");
 //					drone.getCommandManager().spinLeft(50).doFor(SLEEP);
 //					drone.getCommandManager().hover();
-//					Thread.currentThread().sleep(1500);
+//					Thread.currentThread().sleep(500);
 				}
 				
 				if( (result != null) && (result.getText().equals("P.03")) ){
 					System.out.println("center");
-					centerTag();
+//					Thread.currentThread().sleep(500);
+//					centerTag();
 				}
 				
 				

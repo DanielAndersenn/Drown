@@ -177,7 +177,7 @@ public class MainController  {
 			QRController qc = new QRController();
 			qc.addListener(dc);
 			drone.getVideoManager().addImageListener(qc);
-			//dc.start();
+			dc.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 
