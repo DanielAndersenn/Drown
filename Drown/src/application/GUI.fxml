@@ -13,6 +13,18 @@
          <children>
             <ImageView fx:id="maskIW" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
             <ImageView fx:id="morphIW" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label fx:id="batteryLabel">
+                     <VBox.margin>
+                        <Insets left="100.0" />
+                     </VBox.margin></Label>
+                  <Label fx:id="navLabel">
+                     <VBox.margin>
+                        <Insets left="100.0" />
+                     </VBox.margin></Label>
+               </children>
+            </VBox>
          </children>
       </HBox>
    </top>

@@ -24,16 +24,21 @@ import org.opencv.videoio.VideoCapture;
 
 import com.google.zxing.Result;
 
+import application.listeners.ErrorListener;
+import application.listeners.VideoListener;
+import application.utilities.Utilities;
 import de.yadrone.apps.paperchase.TagListener;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
+import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.video.ImageListener;
 import de.yadrone.base.video.xuggler.XugglerDecoder;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -73,11 +78,18 @@ public class MainController  {
 
 	@FXML
 	TextArea droneData;
+	
+	//Labels
+	@FXML
+	private Label navLabel;
+	@FXML
+	private Label batteryLabel;
 
 	// Drone related variables
 	private boolean droneActive;
 	private boolean objectTracked;
 	public IARDrone drone;
+	DroneController dc;
 
 	// Other variables
 	BufferedImage newFrame;
@@ -89,9 +101,14 @@ public class MainController  {
 	// Scalar maxValues = new Scalar(6, 150, 160);
 
 	// Scalar values for webcam v paper ring
-	Scalar minValues = new Scalar(1, 70, 70);
-	Scalar maxValues = new Scalar(5, 255, 255);
-
+	//Scalar minValues = new Scalar(1, 70, 70);
+	//Scalar maxValues = new Scalar(5, 255, 255);
+	
+	//Scalar values for dronecam v paper ring
+	Scalar minValues = new Scalar(1, 50, 125);
+	Scalar maxValues = new Scalar(4, 150, 150);
+	
+	
 	// Timers
 	private ScheduledExecutorService frameGrabTimer;
 	private ScheduledExecutorService houghTimer;
@@ -99,6 +116,8 @@ public class MainController  {
 
 	// PID variables
 	private int center = 0;
+	
+	//
 
 	public MainController() {
 		Runnable trackStatus = () -> {
@@ -108,6 +127,8 @@ public class MainController  {
 
 		this.trackStatusTimer = Executors.newSingleThreadScheduledExecutor();
 		this.trackStatusTimer.scheduleAtFixedRate(trackStatus, 0, 1000, TimeUnit.MILLISECONDS);
+		
+		
 	}
 
 	// Method linked to onClick button "Connect to drone"
@@ -115,39 +136,48 @@ public class MainController  {
 	private void connectDrone() {
 
 		refreshHSVUI();
-		// Init PID contrøller
-		// center = (int) mainIW.getFitWidth() / 2;
-
-		logWrite("Value of center: " + center);
 
 		try {
 			drone = new ARDrone("192.168.1.1", new XugglerDecoder());
 			System.out.println("Initialized drone");
 			logWrite("Initialized drone");
-			drone.setHorizontalCamera();
 			drone.start();
-			drone.getCommandManager().setVideoChannel(VideoChannel.HORI);
-
-			drone.getVideoManager().addImageListener((BufferedImage image) -> {
-				newFrame = image;
-			});
-			logWrite("Sleeping thread for 5 sec");
-			// System.out.println("Før sleep");
-			Thread.sleep(5000);
-			// System.out.println("Efter sleep");
+			
+			//Add ErrorListener
+			drone.addExceptionListener(new ErrorListener(this));
+			
+			
+			//Configure drone
+			drone.getCommandManager().setOutdoor(false, true);
+			drone.setMaxAltitude(2800);
+			drone.setMinAltitude(1400);
+			
+			drone.getVideoManager().addImageListener(new VideoListener(this));
+			
 			logWrite("Started process to grab frames for main picture");
+			
+			//Runnable to grab a frame every 33 ms 
 			Runnable frameGrabber = () -> {
 				processImage();
 			};
 
 			this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
 			this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+			
+			//Runnable to grab a frame and render circles every 5 seconds
+			Runnable houghGrabber = () -> {
+				findAndDrawCircle();
+			};
+
+			this.houghTimer = Executors.newSingleThreadScheduledExecutor();
+			this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
+			
 			droneActive = true;
-			DroneController dc = new DroneController(drone);
+			dc = new DroneController(drone);
 			QRController qc = new QRController();
 			qc.addListener(dc);
 			drone.getVideoManager().addImageListener(qc);
-			dc.start();
+			//dc.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 
@@ -308,7 +338,9 @@ public class MainController  {
 	}
 
 	private void stopAcquisition() {
-
+		
+		dc.stopController();
+		
 		if (this.capture.isOpened()) {
 			// release the camera
 			this.capture.release();
@@ -354,6 +386,26 @@ public class MainController  {
 	public void logWrite(String message) {
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
 		droneData.appendText("\n" + sdf.format(ts) + ": " + message);
+	}
+
+	public void updateNavigationInfo(float pitch, float roll, float yaw) {
+		navLabel.setText("Pitch: " + pitch + " Roll: " + roll + " Yaw:" + yaw);
+		
+	}
+
+	public void updateBatteryLabel(int i) {
+		batteryLabel.setText("Battery: " + i + "%");
+		
+	}
+
+	public void updateDroneError(ARDroneException e) {
+		logWrite("Drone threw error: " + e);
+		
+	}
+
+	public void updateNewFrame(BufferedImage bi) {
+		newFrame = bi;
+		
 	}
 
 }
