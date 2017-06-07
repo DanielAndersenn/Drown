@@ -13,6 +13,7 @@ public class DroneController extends Thread implements TagListener {
 	private final static int SLEEP = 500;
 	
 	protected IARDrone drone;
+	protected MainController mc;
 	protected boolean doStop = false;
 	private Result result;
 	
@@ -22,16 +23,16 @@ public class DroneController extends Thread implements TagListener {
 	private int count = 0;
 	
 	
-	public DroneController(IARDrone drone) {
+	public DroneController(IARDrone drone, MainController mc) {
 		this.drone = drone;
+		this.mc = mc;
 	}
 
 	
 	public void run(){
-		drone.getCommandManager().setOutdoor(false, false);
-		drone.getCommandManager().takeOff();
-		//drone.getCommandManager().up(100).doFor(2000);
-		drone.getCommandManager().hover();
+//		drone.getCommandManager().takeOff();
+		//½drone.getCommandManager().up(100).doFor(1000);
+		//drone.getCommandManager().hover();
 		while(!doStop){
 			try {
 				if ((result != null) && (System.currentTimeMillis() - result.getTimestamp() > 500)){
@@ -48,7 +49,7 @@ public class DroneController extends Thread implements TagListener {
 				if( (result != null) && (result.getText().equals("P.03")) ){
 					System.out.println("center");
 //					Thread.currentThread().sleep(500);
-//					centerTag();
+					centerTag();
 				}
 				
 				
@@ -82,7 +83,7 @@ public class DroneController extends Thread implements TagListener {
 	}
 	
 	private void centerTag() throws InterruptedException {
-
+		mc.logWrite("Entered CenterTag");
 		ResultPoint[] points;
 		
 		synchronized(result)
@@ -98,18 +99,22 @@ public class DroneController extends Thread implements TagListener {
 		
 		if (x < (imgCenterX - Main.TOLERANCE)){
 			drone.getCommandManager().goLeft(SPEED).doFor(SLEEP);
+			mc.logWrite("going left.");
 			Thread.currentThread().sleep(SLEEP);
 
 		}else if (x > (imgCenterX + Main.TOLERANCE)){
 			drone.getCommandManager().goRight(SPEED).doFor(SLEEP);
+			mc.logWrite("going right.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y < (imgCenterY - Main.TOLERANCE)){
 			drone.getCommandManager().forward(SPEED).doFor(SLEEP);
+			mc.logWrite("going forward.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y > (imgCenterY + Main.TOLERANCE)){
 			drone.getCommandManager().backward(SPEED).doFor(SLEEP);
+			mc.logWrite("going backwards.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else{

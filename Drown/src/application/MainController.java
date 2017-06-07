@@ -61,6 +61,8 @@ public class MainController  {
 	private Button connectWB;
 	@FXML
 	private Button updateHSVb;
+	@FXML
+	private Button landDroneField;
 
 	// Text Fields
 	@FXML
@@ -150,7 +152,7 @@ public class MainController  {
 			//Configure drone
 			drone.getCommandManager().setOutdoor(false, true);
 			drone.setMaxAltitude(2800);
-			drone.setMinAltitude(1400);
+			drone.setMinAltitude(2500);
 			
 			drone.getVideoManager().addImageListener(new VideoListener(this));
 			
@@ -173,10 +175,11 @@ public class MainController  {
 			this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
 			
 			droneActive = true;
-			dc = new DroneController(drone);
+			dc = new DroneController(drone,this);
 			QRController qc = new QRController();
 			qc.addListener(dc);
 			drone.getVideoManager().addImageListener(qc);
+			logWrite("What is up???????");
 			dc.start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -212,6 +215,11 @@ public class MainController  {
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
 		this.houghTimer.scheduleAtFixedRate(houghGrabber, 5, 5, TimeUnit.SECONDS);
 
+	}
+	
+	@FXML
+	private void landDrone() {
+		drone.stop();
 	}
 
 	// Method linked to onClick button "Update HSV values"
@@ -261,7 +269,7 @@ public class MainController  {
 			Mat mask = new Mat();
 			Mat morphOutput = new Mat();
 
-			Core.flip(frame, frame, 1);
+			//Core.flip(frame, frame, 1);
 
 			Imgproc.blur(frame, blurredImage, new Size(7, 7));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
