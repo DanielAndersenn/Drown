@@ -3,7 +3,6 @@ package application;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
-import de.yadrone.apps.paperchase.PaperChase;
 import de.yadrone.apps.paperchase.TagListener;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.LEDAnimation;
@@ -30,8 +29,9 @@ public class DroneController extends Thread implements TagListener {
 	
 	public void run(){
 		drone.getCommandManager().setOutdoor(false, false);
-		//drone.getCommandManager().takeOff();
-		QRCounter();
+		drone.getCommandManager().takeOff();
+		drone.getCommandManager().up(100).doFor(2000);
+		drone.getCommandManager().hover();
 		while(!doStop){
 			try {
 				if ((result != null) && (System.currentTimeMillis() - result.getTimestamp() > 500)){
@@ -40,13 +40,14 @@ public class DroneController extends Thread implements TagListener {
 				
 				if(result == null){
 					System.out.println("spin");
-					//drone.getCommandManager().spinLeft(100).doFor(SLEEP);
-					//Thread.currentThread().sleep(SLEEP);
+//					drone.getCommandManager().spinLeft(50).doFor(SLEEP);
+//					drone.getCommandManager().hover();
+//					Thread.currentThread().sleep(1500);
 				}
 				
 				if( (result != null) && (result.getText().equals("P.03")) ){
 					System.out.println("center");
-					//centerTag();
+					centerTag();
 				}
 				
 				
