@@ -129,35 +129,30 @@ public class MainController  {
 
 		this.trackStatusTimer = Executors.newSingleThreadScheduledExecutor();
 		this.trackStatusTimer.scheduleAtFixedRate(trackStatus, 0, 1000, TimeUnit.MILLISECONDS);
-		
-		
-	}
 
-	// Method linked to onClick button "Connect to drone"
-	@FXML
-	private void connectDrone() {
 
-		refreshHSVUI();
 
+		/*   
+		 *  Drone logic
+		 */
 		try {
 			drone = new ARDrone("192.168.1.1", new XugglerDecoder());
 			System.out.println("Initialized drone");
-			logWrite("Initialized drone");
+//			logWrite("Initialized drone");
 			drone.start();
-			
 			//Add ErrorListener
 			drone.addExceptionListener(new ErrorListener(this));
-			
-			
+
+
 			//Configure drone
 			drone.getCommandManager().setOutdoor(false, true);
 			drone.setMaxAltitude(2800);
-			drone.setMinAltitude(2500);
-			
+			drone.setMinAltitude(1500);
+
 			drone.getVideoManager().addImageListener(new VideoListener(this));
-			
-			logWrite("Started process to grab frames for main picture");
-			
+
+//			logWrite("Started process to grab frames for main picture");
+
 			//Runnable to grab a frame every 33 ms 
 			Runnable frameGrabber = () -> {
 				processImage();
@@ -165,7 +160,7 @@ public class MainController  {
 
 			this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
 			this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-			
+
 			//Runnable to grab a frame and render circles every 5 seconds
 			Runnable houghGrabber = () -> {
 				findAndDrawCircle();
@@ -173,22 +168,25 @@ public class MainController  {
 
 			this.houghTimer = Executors.newSingleThreadScheduledExecutor();
 			this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
-			
+
 			droneActive = true;
 			dc = new DroneController(drone,this);
+
+			//QR reader
 			QRController qc = new QRController();
 			qc.addListener(dc);
 			drone.getVideoManager().addImageListener(qc);
-			logWrite("What is up???????");
-			dc.start();
 		} catch (Exception e) {
 			e.printStackTrace();
-
-			if (drone != null) {
-				drone.stop();
-			}
-			System.exit(-1);
 		}
+
+	}
+
+	// Method linked to onClick button "Connect to drone"
+	@FXML
+	private void connectDrone() {
+		refreshHSVUI();			
+		dc.start();
 	}
 
 	// Method linked to onClick button "Connect to Webcam"
