@@ -92,6 +92,7 @@ public class MainController  {
 	private boolean objectTracked;
 	public IARDrone drone;
 	DroneController dc;
+	QRController qc;
 
 	// Other variables
 	BufferedImage newFrame;
@@ -130,52 +131,48 @@ public class MainController  {
 		this.trackStatusTimer = Executors.newSingleThreadScheduledExecutor();
 		this.trackStatusTimer.scheduleAtFixedRate(trackStatus, 0, 1000, TimeUnit.MILLISECONDS);
 
+		//Runnable to grab a frame every 33 ms 
+		Runnable frameGrabber = () -> {
+			processImage();
+		};
+
+		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
+		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+
+		//Runnable to grab a frame and render circles every 5 seconds
+		Runnable houghGrabber = () -> {
+			findAndDrawCircle();
+		};
+
+		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
+
 
 
 		/*   
 		 *  Drone logic
 		 */
 		try {
+			//
 			drone = new ARDrone("192.168.1.1", new XugglerDecoder());
 			System.out.println("Initialized drone");
-//			logWrite("Initialized drone");
 			drone.start();
-			//Add ErrorListener
 			drone.addExceptionListener(new ErrorListener(this));
-
-
-			//Configure drone
 			drone.getCommandManager().setOutdoor(false, true);
 			drone.setMaxAltitude(2800);
-			drone.setMinAltitude(1500);
-
+			drone.getCommandManager().setMinAltitude(1500);
 			drone.getVideoManager().addImageListener(new VideoListener(this));
-
-//			logWrite("Started process to grab frames for main picture");
-
-			//Runnable to grab a frame every 33 ms 
-			Runnable frameGrabber = () -> {
-				processImage();
-			};
-
-			this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
-			this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-
-			//Runnable to grab a frame and render circles every 5 seconds
-			Runnable houghGrabber = () -> {
-				findAndDrawCircle();
-			};
-
-			this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-			this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
 
 			droneActive = true;
 			dc = new DroneController(drone,this);
 
 			//QR reader
-			QRController qc = new QRController();
+			System.out.println("Creating QR");
+			qc = new QRController();
 			qc.addListener(dc);
+			System.out.println("QC: "+qc);
 			drone.getVideoManager().addImageListener(qc);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -286,7 +283,6 @@ public class MainController  {
 	}
 
 	private void findAndDrawCircle() {
-		System.out.println("Test???");
 		BufferedImage houghFrame;
 		Mat frame = new Mat();
 		Mat blurredImage = new Mat();
@@ -294,22 +290,18 @@ public class MainController  {
 		Mat mask = new Mat();
 		Mat hough = new Mat();
 		frame = Utilities.bufferedImage2Mat(newFrame);
-		System.out.println("Test???");
 		if (newFrame != null) {
 
 			Core.flip(frame, frame, 1);
 
 			Imgproc.blur(frame, blurredImage, new Size(3, 3));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
-			System.out.println("Test???");
 
 			Core.inRange(hsvImage, minValues, maxValues, mask);
-			System.out.println("Test???");
 			// Imgproc.cvtColor(mask, hough, Imgproc.COLOR_BGR2GRAY);
 
 			Mat circles = new Mat();
 			Imgproc.HoughCircles(mask, circles, Imgproc.CV_HOUGH_GRADIENT, 2, 100, 200, 20, 30, 200);
-			System.out.println("Test???");
 			System.out.println(circles);
 
 			System.out.println("#rows " + circles.rows() + " #cols " + circles.cols());

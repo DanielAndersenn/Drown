@@ -16,6 +16,7 @@ public class DroneController extends Thread implements TagListener {
 	protected MainController mc;
 	protected boolean doStop = false;
 	private Result result;
+	private float orientation;
 	
 	//QRCounter
 	private String[] ringsToFind = new String[] {"P.00","P.01","P.02","P.03","P.04","P.05"};
@@ -30,25 +31,32 @@ public class DroneController extends Thread implements TagListener {
 
 	
 	public void run(){
+		System.out.println("run entered");
+//		QRCounter();
 		drone.getCommandManager().takeOff();
-//		drone.getCommandManager().up(100).doFor(1000);
+//		drone.getCommandManager().up(75).doFor(1000);
 //		drone.getCommandManager().hover();
 		while(!doStop){
 			try {
 				if ((result != null) && (System.currentTimeMillis() - result.getTimestamp() > 500)){
+					System.out.println("BITCH ASS NIGGER");
 					result = null;
 				}
 				
-				if(result == null){
-					System.out.println("spin");
+//				if(result == null){
+//					System.out.println("spin");
+//					drone.getCommandManager().up(SPEED).doFor(SLEEP);
 //					drone.getCommandManager().spinLeft(50).doFor(SLEEP);
 //					drone.getCommandManager().hover();
+//					this.currentThread().sleep(500);
 //					Thread.currentThread().sleep(500);
-				}
+//				}
+//				System.out.println("run:this.Result = "+result);
 				
-				if( (result != null) && (result.getText().equals("P.03")) ){
+				//&& (result.getText().equals("P.03"))
+				if( (result != null)  ){
 					System.out.println("center");
-					Thread.currentThread().sleep(500);
+//					this.currentThread().sleep(500);
 					centerTag();
 				}
 				
@@ -71,10 +79,10 @@ public class DroneController extends Thread implements TagListener {
 	public void onTag(Result result, float orientation) {
 		if(result !=null){
 			this.result = result;
+			this.orientation = orientation;
 		}
 
 	}
-	
 
 	private String QRCounter(){
 		nextQR = ringsToFind[count++];
@@ -83,6 +91,7 @@ public class DroneController extends Thread implements TagListener {
 	}
 	
 	private void centerTag() throws InterruptedException {
+		System.out.println("HELLO =?!?!?!=?!?!?!?!?!s");
 		mc.logWrite("Entered CenterTag");
 		ResultPoint[] points;
 		
@@ -93,33 +102,39 @@ public class DroneController extends Thread implements TagListener {
 		
 		int imgCenterX = Main.IMAGE_WIDTH / 2;
 		int imgCenterY = Main.IMAGE_HEIGHT / 2;
+		mc.logWrite("imgCenter: x = "+imgCenterX+"| y = "+imgCenterY);
 		
 		float x = points[1].getX();
 		float y = points[1].getY();
+		mc.logWrite("floats: x = "+x+"| y = "+y);
 		
+		/*
 		if (x < (imgCenterX - Main.TOLERANCE)){
-			drone.getCommandManager().goLeft(SPEED).doFor(SLEEP);
-			mc.logWrite("going left.");
+			drone.getCommandManager().goLeft(SPEED).doFor(250);
+			mc.logWrite("left");
 			Thread.currentThread().sleep(SLEEP);
 
 		}else if (x > (imgCenterX + Main.TOLERANCE)){
-			drone.getCommandManager().goRight(SPEED).doFor(SLEEP);
-			mc.logWrite("going right.");
+			drone.getCommandManager().goRight(SPEED).doFor(250);
+			mc.logWrite("right");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y < (imgCenterY - Main.TOLERANCE)){
-			drone.getCommandManager().forward(SPEED).doFor(SLEEP);
-			mc.logWrite("going forward.");
+			drone.getCommandManager().up(SPEED).doFor(250);
+			mc.logWrite("up");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y > (imgCenterY + Main.TOLERANCE)){
-			drone.getCommandManager().backward(SPEED).doFor(SLEEP);
-			mc.logWrite("going backwards.");
+			drone.getCommandManager().down(SPEED).doFor(250);
+			mc.logWrite("down");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else{
+			mc.logWrite("CENTERED!!!!");
 			drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_GREEN, 10, 5);
 		}
+		*/
+		
 	
 	}
 	
