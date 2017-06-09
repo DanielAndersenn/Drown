@@ -24,6 +24,8 @@ import org.opencv.videoio.VideoCapture;
 
 import com.google.zxing.Result;
 
+import application.autonomy.CMDQueue;
+import application.autonomy.CommandHandler;
 import application.listeners.ErrorListener;
 import application.listeners.VideoListener;
 import application.utilities.Utilities;
@@ -92,6 +94,7 @@ public class MainController  {
 	private boolean objectTracked;
 	public IARDrone drone;
 	DroneController dc;
+	public CMDQueue cmdQueue;
 
 	// Other variables
 	BufferedImage newFrame;
@@ -115,9 +118,6 @@ public class MainController  {
 	private ScheduledExecutorService frameGrabTimer;
 	private ScheduledExecutorService houghTimer;
 	private ScheduledExecutorService trackStatusTimer;
-
-	// PID variables
-	private int center = 0;
 	
 	//
 
@@ -130,8 +130,8 @@ public class MainController  {
 		this.trackStatusTimer = Executors.newSingleThreadScheduledExecutor();
 		this.trackStatusTimer.scheduleAtFixedRate(trackStatus, 0, 1000, TimeUnit.MILLISECONDS);
 
-
-
+		
+		
 		/*   
 		 *  Drone logic
 		 */
@@ -153,32 +153,32 @@ public class MainController  {
 
 //			logWrite("Started process to grab frames for main picture");
 
-			//Runnable to grab a frame every 33 ms 
-			Runnable frameGrabber = () -> {
-				processImage();
-			};
-
-			this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
-			this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-
-			//Runnable to grab a frame and render circles every 5 seconds
-			Runnable houghGrabber = () -> {
-				findAndDrawCircle();
-			};
-
-			this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-			this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
-
 			droneActive = true;
-			dc = new DroneController(drone,this);
+			//dc = new DroneController(drone,this);
 
 			//QR reader
-			QRController qc = new QRController();
-			qc.addListener(dc);
-			drone.getVideoManager().addImageListener(qc);
+			//QRController qc = new QRController();
+			//qc.addListener(dc);
+			//drone.getVideoManager().addImageListener(qc);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		//Runnable to grab a frame every 33 ms 
+		Runnable frameGrabber = () -> {
+			processImage();
+		};
+
+		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
+		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+
+		//Runnable to grab a frame and render circles every 5 seconds
+		Runnable houghGrabber = () -> {
+			findAndDrawCircle();
+		};
+
+		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
 
 	}
 
@@ -186,7 +186,16 @@ public class MainController  {
 	@FXML
 	private void connectDrone() {
 		refreshHSVUI();			
-		dc.start();
+		//dc.start();
+		cmdQueue = new CMDQueue(this, new CommandHandler(this));
+		cmdQueue.start(5000);
+		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
+		cmdQueue.add(CMDQueue.CommandType.HOVER, 0, 5000);
+		cmdQueue.add(CMDQueue.CommandType.MOVELEFT, 100, 2000);
+		cmdQueue.add(CMDQueue.CommandType.MOVERIGHT, 100, 4000);
+		cmdQueue.add(CMDQueue.CommandType.LAND, 0, 0);
+		cmdQueue.printQueuedCmds();
+		
 	}
 
 	// Method linked to onClick button "Connect to Webcam"
@@ -286,7 +295,7 @@ public class MainController  {
 	}
 
 	private void findAndDrawCircle() {
-		System.out.println("Test???");
+		System.out.println("Entered findAndDrawCircle");
 		BufferedImage houghFrame;
 		Mat frame = new Mat();
 		Mat blurredImage = new Mat();
@@ -294,22 +303,18 @@ public class MainController  {
 		Mat mask = new Mat();
 		Mat hough = new Mat();
 		frame = Utilities.bufferedImage2Mat(newFrame);
-		System.out.println("Test???");
 		if (newFrame != null) {
 
 			Core.flip(frame, frame, 1);
 
 			Imgproc.blur(frame, blurredImage, new Size(3, 3));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
-			System.out.println("Test???");
 
 			Core.inRange(hsvImage, minValues, maxValues, mask);
-			System.out.println("Test???");
 			// Imgproc.cvtColor(mask, hough, Imgproc.COLOR_BGR2GRAY);
 
 			Mat circles = new Mat();
 			Imgproc.HoughCircles(mask, circles, Imgproc.CV_HOUGH_GRADIENT, 2, 100, 200, 20, 30, 200);
-			System.out.println("Test???");
 			System.out.println(circles);
 
 			System.out.println("#rows " + circles.rows() + " #cols " + circles.cols());
@@ -387,6 +392,10 @@ public class MainController  {
 
 	protected void setClosed() {
 		this.stopAcquisition();
+	}
+	
+	public IARDrone getDrone(){
+		return drone;
 	}
 
 	public void logWrite(String message) {
