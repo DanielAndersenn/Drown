@@ -100,7 +100,6 @@ public class Image_Processing {
 			}
 		}
 		else {
-			//TODO Sketchy
 			if (o.getY() > 0) {
 				// Fly up
 				System.out.println("DOWN");
