@@ -1,10 +1,6 @@
 package image_processing.controller;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import application.autonomy.Command;
 import image_processing.singleton.Container;
@@ -14,18 +10,6 @@ import image_processing.data.Pixel;
 
 public class Image_Processing {
 
-	// Billedets data skal gemmes i et globalt scope så flere metoder kan gøre brug af
-	// informationen - løst ved en singleton lige nu
-	// Ulempen ved singleton er så at jeg ikke kan have 2 image_processing objekter på samme tid
-	// da de resetter container ved initializering
-	// En anden grund til at Container er en singleton er fordi at den indeholder data
-	// som det er hurtigst at opdatere mens at billedet kigges igennem, istedet for først
-	// at gøre det efter
-	// Alternativet er at passe Container objektet med hele vejen ned igennem algoritmen?
-	
-	// Er det her at vi får brug for semafor? Dronen venter på at f.eks. en boolean bliver sat at 
-	// fly_go_nogo()?
-	
 	// TODO ER DE 1000/900/800 MM INKL. ELLER EKLS. RINGEN?
 	
 	/**
@@ -41,7 +25,7 @@ public class Image_Processing {
 
 	/**
 	 * 
-	 * @param file
+	 * @param Image
 	 * @param object_height_mm
 	 */
 	public Image_Processing(BufferedImage Image) {
@@ -72,9 +56,11 @@ public class Image_Processing {
 		
 		return p.isInside(image.getWidth(), new Pixel(image.getWidth()/2, image.getHeight()/2));
 	}
-
-	// Metode til at afgøre hvilken retning at dronen skal flyve i
-	//TODO Skal returnere en form for enum - MEN ER BARE VOID FOR NU
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public Command.CommandType direction_to_fly() {
 
 		// Calculate vector from center of circle to center of image
