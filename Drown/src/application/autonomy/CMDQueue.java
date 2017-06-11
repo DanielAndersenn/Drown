@@ -31,7 +31,9 @@ public class CMDQueue implements Runnable{
 		LAND,
 		HOVER,
 		MOVELEFT,
-		MOVERIGHT
+		MOVERIGHT,
+		MOVEUP,
+		MOVEDOWN
 	}
 	
 	
@@ -97,6 +99,12 @@ public class CMDQueue implements Runnable{
 				case MOVERIGHT: {
 					cmdHandler.moveRight(cmd.speed, cmd.duration);
 					break;
+				}
+				case MOVEUP: {
+					cmdHandler.moveUp(cmd.speed,cmd.duration);
+				}
+				case MOVEDOWN: {
+					cmdHandler.moveDown(cmd.speed, cmd.duration);
 				}
 			     default: {
                      mc.logWrite("DEFAULT CASE WHAT UP");

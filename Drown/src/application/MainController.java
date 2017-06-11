@@ -155,12 +155,24 @@ public class MainController  {
 	private void startAI() {
 		cmdQueue = new CMDQueue(this, new CommandHandler(this));
 		cmdQueue.start(500);
+		
+		dc = new DroneController(drone,this,cmdQueue);
+
+		//QR reader
+		QRController qc = new QRController();
+		qc.addListener(dc);
+		drone.getVideoManager().addImageListener(qc);
+		
+		dc.start();
+		
+		/*
 		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
 		cmdQueue.add(CMDQueue.CommandType.HOVER, 0, 10000);
 		cmdQueue.add(CMDQueue.CommandType.MOVELEFT, 10, 1000);
 		cmdQueue.add(CMDQueue.CommandType.MOVERIGHT, 10, 1000);
 		cmdQueue.add(CMDQueue.CommandType.LAND, 0, 0);
 		cmdQueue.printQueuedCmds();
+		*/
 	}
 
 	// Method linked to onClick button "Connect to drone"
@@ -193,12 +205,7 @@ public class MainController  {
 			navData.addAttitudeListener(new AttitudeListener(this));
 			navData.addBatteryListener(new BatteryListener(this));
 			
-			//dc = new DroneController(drone,this);
-
-			//QR reader
-			//QRController qc = new QRController();
-			//qc.addListener(dc);
-			//drone.getVideoManager().addImageListener(qc);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

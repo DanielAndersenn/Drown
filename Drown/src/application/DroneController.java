@@ -3,6 +3,7 @@ package application;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
+import application.autonomy.CMDQueue;
 import de.yadrone.apps.paperchase.TagListener;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.LEDAnimation;
@@ -14,6 +15,7 @@ public class DroneController extends Thread implements TagListener {
 	
 	protected IARDrone drone;
 	protected MainController mc;
+	protected CMDQueue cmdq;
 	protected boolean doStop = false;
 	private Result result;
 	
@@ -23,14 +25,16 @@ public class DroneController extends Thread implements TagListener {
 	private int count = 0;
 	
 	
-	public DroneController(IARDrone drone, MainController mc) {
+	public DroneController(IARDrone drone, MainController mc, CMDQueue cmdq) {
 		this.drone = drone;
 		this.mc = mc;
+		this.cmdq = cmdq;
 	}
 
 	
 	public void run(){
-		drone.getCommandManager().takeOff();
+		cmdq.add(CMDQueue.CommandType.TAKEOFF,0,0);
+//		drone.getCommandManager().takeOff();
 //		drone.getCommandManager().up(100).doFor(1000);
 //		drone.getCommandManager().hover();
 		while(!doStop){
@@ -40,9 +44,7 @@ public class DroneController extends Thread implements TagListener {
 				}
 				
 				if(result == null){
-					System.out.println("spin");
-//					drone.getCommandManager().spinLeft(50).doFor(SLEEP);
-//					drone.getCommandManager().hover();
+//					System.out.println("spin");
 //					Thread.currentThread().sleep(500);
 				}
 				
@@ -96,29 +98,34 @@ public class DroneController extends Thread implements TagListener {
 		
 		float x = points[1].getX();
 		float y = points[1].getY();
-		
+		mc.logWrite("Floats: x = "+x+"| y = "+y);
 		if (x < (imgCenterX - Main.TOLERANCE)){
-			drone.getCommandManager().goLeft(SPEED).doFor(SLEEP);
-			mc.logWrite("going left.");
+//			drone.getCommandManager().goLeft(SPEED).doFor(SLEEP);
+			cmdq.add(CMDQueue.CommandType.MOVELEFT, SPEED, SLEEP);
+//			mc.logWrite("going left.");
 			Thread.currentThread().sleep(SLEEP);
 
 		}else if (x > (imgCenterX + Main.TOLERANCE)){
-			drone.getCommandManager().goRight(SPEED).doFor(SLEEP);
-			mc.logWrite("going right.");
+//			drone.getCommandManager().goRight(SPEED).doFor(SLEEP);
+			cmdq.add(CMDQueue.CommandType.MOVERIGHT, SPEED, SLEEP);
+//			mc.logWrite("going right.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y < (imgCenterY - Main.TOLERANCE)){
-			drone.getCommandManager().forward(SPEED).doFor(SLEEP);
-			mc.logWrite("going forward.");
+//			drone.getCommandManager().forward(SPEED).doFor(SLEEP);
+			cmdq.add(CMDQueue.CommandType.MOVEUP, SPEED, SLEEP);
+//			mc.logWrite("going forward.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y > (imgCenterY + Main.TOLERANCE)){
-			drone.getCommandManager().backward(SPEED).doFor(SLEEP);
-			mc.logWrite("going backwards.");
+//			drone.getCommandManager().backward(SPEED).doFor(SLEEP);
+			cmdq.add(CMDQueue.CommandType.MOVEDOWN, SPEED, SLEEP);
+//			mc.logWrite("going backwards.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else{
-			drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_GREEN, 10, 5);
+			//drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_GREEN, 10, 5);
+			mc.logWrite("CENTERED!!!!");
 		}
 	
 	}

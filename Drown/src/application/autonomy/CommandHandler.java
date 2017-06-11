@@ -79,6 +79,36 @@ public class CommandHandler {
 		
 	}
 	
+	protected void moveDown(int speed, int duration){
+		mc.logWrite("SENT CMD ## moveDown ##");
+		mc.logWrite("Moving down for " + duration + "ms at " + speed + "mm/s");
+		
+		if(speed > 0 && duration > 0)
+		{
+			droneCMDM.down(speed).doFor(duration);
+		} else {
+			droneCMDM.down(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+	}
+	
+	protected void moveUp(int speed, int duration){
+		mc.logWrite("SENT CMD ## moveUp ##");
+		mc.logWrite("Moving up for " + duration + "ms at " + speed + "mm/s");
+		
+		if(speed > 0 && duration > 0)
+		{
+			droneCMDM.up(speed).doFor(duration);
+		} else {
+			droneCMDM.up(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+	}
+	
 
     private void sleep(int timeout) {
         try {
