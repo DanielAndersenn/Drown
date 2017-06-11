@@ -1,6 +1,7 @@
 package application.listeners;
 
 import application.MainController;
+import javafx.application.Platform;
 
 public class BatteryListener implements de.yadrone.base.navdata.BatteryListener
 {
@@ -12,7 +13,13 @@ public class BatteryListener implements de.yadrone.base.navdata.BatteryListener
     
     @Override
     public void batteryLevelChanged(int i) {
-        controller.updateBatteryLabel(i);
+    	Platform.runLater(new Runnable() {
+    		
+    		@Override
+    		public void run() {
+    			controller.updateBatteryLabel(i);
+    		}
+    	});
     }
 
     @Override
