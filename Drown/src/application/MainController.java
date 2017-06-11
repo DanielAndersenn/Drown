@@ -26,6 +26,8 @@ import com.google.zxing.Result;
 
 import application.autonomy.CMDQueue;
 import application.autonomy.CommandHandler;
+import application.listeners.AttitudeListener;
+import application.listeners.BatteryListener;
 import application.listeners.ErrorListener;
 import application.listeners.VideoListener;
 import application.utilities.Utilities;
@@ -35,8 +37,11 @@ import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
 import de.yadrone.base.exception.ARDroneException;
+import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
 import de.yadrone.base.video.xuggler.XugglerDecoder;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -65,6 +70,8 @@ public class MainController  {
 	private Button updateHSVb;
 	@FXML
 	private Button landDroneField;
+	@FXML
+	private Button startAI;
 
 	// Text Fields
 	@FXML
@@ -83,7 +90,7 @@ public class MainController  {
 	@FXML
 	TextArea droneData;
 	
-	//Labels
+	//TextField
 	@FXML
 	private Label navLabel;
 	@FXML
@@ -122,15 +129,45 @@ public class MainController  {
 	//
 
 	public MainController() {
-		Runnable trackStatus = () -> {
-			if (objectTracked)
-				logWrite("Currently tracking object!");
+		
+		
+		
+		//Runnable to grab a frame every 33 ms 
+		Runnable frameGrabber = () -> {
+			processImage();
 		};
 
-		this.trackStatusTimer = Executors.newSingleThreadScheduledExecutor();
-		this.trackStatusTimer.scheduleAtFixedRate(trackStatus, 0, 1000, TimeUnit.MILLISECONDS);
+		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
+		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 
+		//Runnable to grab a frame and render circles every 5 seconds
+		Runnable houghGrabber = () -> {
+			findAndDrawCircle();
+		};
+
+		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 20, 5, TimeUnit.SECONDS);
+
+	}
+	
+	// Method linked to onClick button "Start AI"
+	@FXML
+	private void startAI() {
+		cmdQueue = new CMDQueue(this, new CommandHandler(this));
+		cmdQueue.start(500);
+		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
+		cmdQueue.add(CMDQueue.CommandType.HOVER, 0, 10000);
+		cmdQueue.add(CMDQueue.CommandType.MOVELEFT, 10, 1000);
+		cmdQueue.add(CMDQueue.CommandType.MOVERIGHT, 10, 1000);
+		cmdQueue.add(CMDQueue.CommandType.LAND, 0, 0);
+		cmdQueue.printQueuedCmds();
+	}
+
+	// Method linked to onClick button "Connect to drone"
+	@FXML
+	private void connectDrone() {
 		
+		refreshHSVUI();		
 		
 		/*   
 		 *  Drone logic
@@ -151,9 +188,11 @@ public class MainController  {
 
 			drone.getVideoManager().addImageListener(new VideoListener(this));
 
-//			logWrite("Started process to grab frames for main picture");
-
-			droneActive = true;
+			
+			NavDataManager navData =  drone.getNavDataManager();
+			navData.addAttitudeListener(new AttitudeListener(this));
+			navData.addBatteryListener(new BatteryListener(this));
+			
 			//dc = new DroneController(drone,this);
 
 			//QR reader
@@ -163,44 +202,16 @@ public class MainController  {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		//Runnable to grab a frame every 33 ms 
-		Runnable frameGrabber = () -> {
-			processImage();
-		};
 
-		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
-		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-
-		//Runnable to grab a frame and render circles every 5 seconds
-		Runnable houghGrabber = () -> {
-			findAndDrawCircle();
-		};
-
-		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 15, 5, TimeUnit.SECONDS);
-
-	}
-
-	// Method linked to onClick button "Connect to drone"
-	@FXML
-	private void connectDrone() {
-		refreshHSVUI();			
-		//dc.start();
-		cmdQueue = new CMDQueue(this, new CommandHandler(this));
-		cmdQueue.start(5000);
-		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
-		cmdQueue.add(CMDQueue.CommandType.HOVER, 0, 5000);
-		cmdQueue.add(CMDQueue.CommandType.MOVELEFT, 100, 2000);
-		cmdQueue.add(CMDQueue.CommandType.MOVERIGHT, 100, 4000);
-		cmdQueue.add(CMDQueue.CommandType.LAND, 0, 0);
-		cmdQueue.printQueuedCmds();
 		
 	}
 
 	// Method linked to onClick button "Connect to Webcam"
 	@FXML
 	private void connectWB() {
+		
+		batteryLabel.setText("Cancer");
+		
 		refreshHSVUI();
 		this.capture.open(cameraId);
 
@@ -227,6 +238,7 @@ public class MainController  {
 	@FXML
 	private void landDrone() {
 		drone.stop();
+	
 	}
 
 	// Method linked to onClick button "Update HSV values"
@@ -404,12 +416,15 @@ public class MainController  {
 	}
 
 	public void updateNavigationInfo(float pitch, float roll, float yaw) {
-		navLabel.setText("Pitch: " + pitch + " Roll: " + roll + " Yaw:" + yaw);
+		StringProperty value = new SimpleStringProperty("Pitch: " + pitch + " Roll: " + roll + " Yaw:" + yaw);
+		navLabel.textProperty().bind(value);
 		
 	}
-
+	
 	public void updateBatteryLabel(int i) {
-		batteryLabel.setText("Battery: " + i + "%");
+		
+		StringProperty value = new SimpleStringProperty("Battery: " + i + "%");
+		batteryLabel.textProperty().bind(value);
 		
 	}
 

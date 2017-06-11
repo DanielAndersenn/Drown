@@ -12,7 +12,8 @@ public class AttitudeListener implements de.yadrone.base.navdata.AttitudeListene
     
     @Override
     public void attitudeUpdated(float pitch, float roll, float yaw) {
-        controller.updateNavigationInfo(pitch, roll, yaw);
+        //controller.updateNavigationInfo(pitch, roll, yaw);
+    	//System.out.println(pitch + roll + yaw);
     }
     
     @Override

@@ -58,7 +58,7 @@ public class CMDQueue implements Runnable{
         
         cmdThread = new Thread(this);
         cmdThread.setDaemon(true);
-        cmdThread.run();
+        cmdThread.start();
     }
     
     public void stop() {
@@ -98,6 +98,10 @@ public class CMDQueue implements Runnable{
 					cmdHandler.moveRight(cmd.speed, cmd.duration);
 					break;
 				}
+			     default: {
+                     mc.logWrite("DEFAULT CASE WHAT UP");
+                     break;
+                 }
 				
 				}
 				
