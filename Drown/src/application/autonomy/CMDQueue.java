@@ -3,6 +3,7 @@ package application.autonomy;
 import java.util.LinkedList;
 
 import application.MainController;
+import application.autonomy.Command.CommandType;
 
 public class CMDQueue implements Runnable{
 
@@ -25,16 +26,7 @@ public class CMDQueue implements Runnable{
 		this.mc = mc;
 		this.cmdHandler = cmdHandler;
 	}
-	
-	public enum CommandType {
-		TAKEOFF,
-		LAND,
-		HOVER,
-		MOVELEFT,
-		MOVERIGHT,
-		MOVEUP,
-		MOVEDOWN
-	}
+
 	
 	
 	public boolean add(CommandType cType, int speed, int duration) {
@@ -105,6 +97,23 @@ public class CMDQueue implements Runnable{
 				}
 				case MOVEDOWN: {
 					cmdHandler.moveDown(cmd.speed, cmd.duration);
+					break;
+				}
+				case MOVEFORWARD: {
+					cmdHandler.moveForward(cmd.speed, cmd.duration);
+					break;
+				}
+				case MOVEBACKWARD: {
+					cmdHandler.moveBackward(cmd.speed, cmd.duration);
+					break;
+				}
+				case SPINRIGHT: {
+					cmdHandler.spinRight(cmd.speed, cmd.duration);
+					break;
+				}
+				case SPINLEFT: {
+					cmdHandler.spinLeft(cmd.speed, cmd.duration);
+					break;
 				}
 			     default: {
                      mc.logWrite("DEFAULT CASE WHAT UP");
@@ -124,24 +133,7 @@ public class CMDQueue implements Runnable{
 		
 	}
 	
-	private class Command {
 
-		
-		
-		protected final CommandType cmd;
-		protected final int speed;
-		protected final int duration;
-		
-		
-		public Command(CommandType cmd, int speed, int duration) {
-			this.cmd = cmd;
-			this.speed = speed;
-			this.duration = duration;
-		}
-		
-
-		
-	}
 	
 	
 }

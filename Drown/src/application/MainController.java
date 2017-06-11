@@ -26,6 +26,7 @@ import com.google.zxing.Result;
 
 import application.autonomy.CMDQueue;
 import application.autonomy.CommandHandler;
+import application.autonomy.Command;
 import application.listeners.AttitudeListener;
 import application.listeners.BatteryListener;
 import application.listeners.ErrorListener;
@@ -40,6 +41,8 @@ import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
 import de.yadrone.base.video.xuggler.XugglerDecoder;
+import image_processing.controller.Image_Processing_Controller;
+import image_processing.singleton.File_Lock;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;

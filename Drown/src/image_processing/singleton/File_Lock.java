@@ -37,6 +37,7 @@ public class File_Lock {
 	}
 	
     public synchronized BufferedImage take() {
+    	System.out.println("Test2");
         // Wait until enum is available
         while (empty) {
             try {
@@ -54,6 +55,7 @@ public class File_Lock {
     }
 
     public synchronized void put(BufferedImage file) {
+    	System.out.println("Test");
         // Wait until enum has been read
         while (!empty) {
             try { 
