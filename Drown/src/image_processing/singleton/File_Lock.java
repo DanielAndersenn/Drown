@@ -1,6 +1,6 @@
 package image_processing.singleton;
 
-import java.io.File;
+import java.awt.image.BufferedImage;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class File_Lock {
 
 	private static File_Lock instance = null;
 	private boolean empty = true;
-	private File file;
+	private BufferedImage file;
 	
 	private File_Lock() {
 		
@@ -36,7 +36,7 @@ public class File_Lock {
 		return instance;
 	}
 	
-    public synchronized File take() {
+    public synchronized BufferedImage take() {
         // Wait until enum is available
         while (empty) {
             try {
@@ -53,7 +53,7 @@ public class File_Lock {
         return file;
     }
 
-    public synchronized void put(File file) {
+    public synchronized void put(BufferedImage file) {
         // Wait until enum has been read
         while (!empty) {
             try { 

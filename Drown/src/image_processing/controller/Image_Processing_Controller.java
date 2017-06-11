@@ -1,13 +1,13 @@
 package image_processing.controller;
 
-import java.io.File;
+import java.awt.image.BufferedImage;
 
 import image_processing.singleton.File_Lock;
 
 public class Image_Processing_Controller implements Runnable{
 
 	private Image_Processing ip;
-	private File file; // File --> BufferedImage
+	private BufferedImage file;
 	
 	@Override
 	public void run() {

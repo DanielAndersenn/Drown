@@ -43,16 +43,12 @@ public class Image_Processing {
 	 * @param file
 	 * @param object_height_mm
 	 */
-	public Image_Processing(File file) {
+	public Image_Processing(BufferedImage Image) {
 
-		try {
-			Container.getInstance().resetList();
-			this.image = ImageIO.read(file);
-			analyzeImage();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
+		Container.getInstance().resetList();
+		this.image = Image;
+		analyzeImage();
 		Container.getInstance().findABCD();
 	}
 
