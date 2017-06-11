@@ -24,9 +24,9 @@ class consumer implements Runnable {
 		
 		File f = null;
 		
-		while (true) {
+		while ((f = File_Lock.getInstance().take()) != null) {
 			
-			f = File_Lock.getInstance().take();
+//			f = File_Lock.getInstance().take();
 			
 			System.out.format("Consumer : File received:\n");
 			
@@ -40,7 +40,7 @@ class consumer implements Runnable {
 				ip.direction_to_fly();
 			}
 			
-			f = null; // Shouldnt be necesarry though, since take() should block..
+//			f = null; // Shouldnt be necesarry though, since take() should block..
 			
 		}
 
@@ -52,11 +52,11 @@ class producer implements Runnable {
 
 	public void run() {
 		File importantInfo[] = {
-				new File("src/image_processor.image/left.png"),
-				new File("src/image_processor.image/right.png"),
-				new File("src/image_processor.image/up.png"),
-				new File("src/image_processor.image/bot.png"),
-				new File("src/image_processor.image/center.png")
+				new File("src/image_processing/test_data/left.png"),
+				new File("src/image_processing/test_data/right.png"),
+				new File("src/image_processing/test_data/top.png"),
+				new File("src/image_processing/test_data/bot.png"),
+				new File("src/image_processing/test_data/center.png")
 		};
 
 		for (int i = 0; i < importantInfo.length; i++) {
