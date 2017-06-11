@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import application.autonomy.Command;
 import image_processing.singleton.Container;
 import image_processing.algorithms.BFS;
 import image_processing.algorithms.Polygon;
@@ -74,7 +75,7 @@ public class Image_Processing {
 
 	// Metode til at afgøre hvilken retning at dronen skal flyve i
 	//TODO Skal returnere en form for enum - MEN ER BARE VOID FOR NU
-	public void direction_to_fly() {
+	public Command.CommandType direction_to_fly() {
 
 		// Calculate vector from center of circle to center of image
 		double c_y = Container.getInstance().getTop().getY() - 
@@ -88,21 +89,21 @@ public class Image_Processing {
 		if (Math.abs(o.getX()) > Math.abs(o.getY())) {
 			if (o.getX() > 0) {
 				// Fly Right
-				System.out.println("RIGHT");
+				return Command.CommandType.MOVERIGHT;
 			}
 			else {
 				// Fly left
-				System.out.println("LEFT");
+				return Command.CommandType.MOVELEFT;
 			}
 		}
 		else {
 			if (o.getY() > 0) {
 				// Fly up
-				System.out.println("DOWN");
+				return Command.CommandType.MOVEUP;
 			}
 			else {
 				// Fly down
-				System.out.println("UP");
+				return Command.CommandType.MOVEDOWN;
 			}
 		}
 	}

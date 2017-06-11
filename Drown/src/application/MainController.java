@@ -116,7 +116,7 @@ public class MainController  {
 	// Scalar maxValues = new Scalar(6, 150, 160);
 
 	// Scalar values for webcam v paper ring
-	Scalar minValues = new Scalar(1, 70, 70);
+	Scalar minValues = new Scalar(1, 50, 50);
 	Scalar maxValues = new Scalar(5, 255, 255);
 	
 	//Scalar values for dronecam v paper ring
@@ -143,30 +143,25 @@ public class MainController  {
 		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
 		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 
+	}
+	
+	// Method linked to onClick button "Start AI"
+	@FXML
+	private void startAI() {
+		
 		//Runnable to grab a frame and render circles every 5 seconds
 		Runnable houghGrabber = () -> {
 			findAndDrawCircle();
 		};
 
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 20, 5, TimeUnit.SECONDS);
-
-	}
-	
-	// Method linked to onClick button "Start AI"
-	@FXML
-	private void startAI() {
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 8, 8, TimeUnit.SECONDS);
+		
 		cmdQueue = new CMDQueue(this, new CommandHandler(this));
-		(new Thread(new Image_Processing_Controller())).start();
-		cmdQueue.start(500);
+		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
+		cmdQueue.start(200);
 		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
-		cmdQueue.add(Command.CommandType.HOVER, 0, 5000);
-		cmdQueue.add(Command.CommandType.MOVEUP, 8, 1000);
-		cmdQueue.add(Command.CommandType.HOVER, 0, 5000);
-		cmdQueue.add(Command.CommandType.MOVEUP, 8, 1000);
-		cmdQueue.add(Command.CommandType.HOVER, 0, 5000);
-		cmdQueue.add(Command.CommandType.LAND, 0, 0);
-		cmdQueue.printQueuedCmds();
+		cmdQueue.add(Command.CommandType.HOVER, 0, 10000);
 	}
 
 	// Method linked to onClick button "Connect to drone"
@@ -217,7 +212,7 @@ public class MainController  {
 	private void connectWB() {
 		
 		batteryLabel.setText("Cancer");
-		(new Thread(new Image_Processing_Controller())).start();
+		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
 		
 		refreshHSVUI();
 		this.capture.open(cameraId);
@@ -238,13 +233,13 @@ public class MainController  {
 		};
 
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 10, 5, TimeUnit.SECONDS);
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 10, 10, TimeUnit.SECONDS);
 
 	}
 	
 	@FXML
 	private void landDrone() {
-		drone.stop();
+		cmdQueue.add(Command.CommandType.LAND, 0, 0);
 	
 	}
 
@@ -295,7 +290,7 @@ public class MainController  {
 			Mat mask = new Mat();
 			Mat morphOutput = new Mat();
 
-			//Core.flip(frame, frame, 1);
+			Core.flip(frame, frame, 1);
 
 			Imgproc.blur(frame, blurredImage, new Size(7, 7));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);

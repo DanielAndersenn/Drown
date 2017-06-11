@@ -97,6 +97,7 @@ public class CMDQueue implements Runnable{
 				}
 				case MOVEDOWN: {
 					cmdHandler.moveDown(cmd.speed, cmd.duration);
+					break;
 				}
 				case MOVEFORWARD: {
 					cmdHandler.moveForward(cmd.speed, cmd.duration);
@@ -112,6 +113,7 @@ public class CMDQueue implements Runnable{
 				}
 				case SPINLEFT: {
 					cmdHandler.spinLeft(cmd.speed, cmd.duration);
+					break;
 				}
 			     default: {
                      mc.logWrite("DEFAULT CASE WHAT UP");

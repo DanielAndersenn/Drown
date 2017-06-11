@@ -81,6 +81,7 @@ public class CommandHandler {
 	
 	protected void moveUp(int speed, int duration) {
 		mc.logWrite("SENT CMD ## moveUp ##");
+		mc.logWrite("Moving up for " + duration + "ms at " + speed + "mm/s");
 		if(speed > 0 && duration > 0)
 		{
 			droneCMDM.up(speed).doFor(duration);
@@ -95,6 +96,7 @@ public class CommandHandler {
 	
 	protected void moveDown(int speed, int duration) {
 		mc.logWrite("SENT CMD ## moveDown ##");
+		mc.logWrite("Moving down for " + duration + "ms at " + speed + "mm/s");
 		if(speed > 0 && duration > 0)
 		{
 			droneCMDM.down(speed).doFor(duration);
@@ -109,6 +111,7 @@ public class CommandHandler {
 	
 	protected void moveForward(int speed, int duration) {
 		mc.logWrite("SENT CMD ## moveForward ##");
+		mc.logWrite("Moving forward for " + duration + "ms at " + speed + "mm/s");
 		if(speed > 0 && duration > 0) {
 			droneCMDM.forward(speed).doFor(duration);
 		} else {
@@ -122,6 +125,7 @@ public class CommandHandler {
 	
 	protected void moveBackward(int speed, int duration) {
 		mc.logWrite("SENT CMD ## moveBackward ##");
+		mc.logWrite("Moving backward for " + duration + "ms at " + speed + "mm/s");
 		if(speed > 0 && duration > 0) {
 			droneCMDM.backward(speed).doFor(duration);
 		} else {
