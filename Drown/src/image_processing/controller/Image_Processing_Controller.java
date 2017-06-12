@@ -4,7 +4,9 @@ import java.awt.image.BufferedImage;
 import application.MainController;
 import application.autonomy.CMDQueue;
 import application.autonomy.Command;
+import image_processing.singleton.Container;
 import image_processing.singleton.File_Lock;
+import image_processing.singleton.Rings;
 
 public class Image_Processing_Controller implements Runnable{
 
@@ -32,13 +34,17 @@ public class Image_Processing_Controller implements Runnable{
 					// Pass command into commandque
 					CMDq.add(Command.CommandType.LAND, 0, 1);
 					MC.logWrite("Drone is centered PogChamp - GOGOGO");
-					//TODO Reset PrevPicDist
+					Container.getInstance().setPrevPicDist(0);
+					Rings.getInstance().ringPassed();
 				}
 				else {
 					// Fly backwards
 					CMDq.add(Command.CommandType.MOVEBACKWARD, 5, 500); 
 					MC.logWrite("Distance NOT long enough. Moving back" );
 				}
+				
+				Container.getInstance().setPrevPicDist(Container.getInstance().getTop().getY() - 
+													   Container.getInstance().getBot().getY());
 			}
 			else {
 				// Pass command into commandque				

@@ -28,7 +28,6 @@ public class Image_Processing {
 	 */
 	
 	private BufferedImage image;
-	private double distance;
 
 	/**
 	 * 
