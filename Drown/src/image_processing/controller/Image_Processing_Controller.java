@@ -32,6 +32,7 @@ public class Image_Processing_Controller implements Runnable{
 					// Pass command into commandque
 					CMDq.add(Command.CommandType.LAND, 0, 1);
 					MC.logWrite("Drone is centered PogChamp - GOGOGO");
+					//TODO Reset PrevPicDist
 				}
 				else {
 					// Fly backwards
