@@ -12,6 +12,25 @@ public class Container {
 	private Pixel a, b, c, d;
 	private DoubleLinkedList list;
 	private double mm_px;
+	private double minDistance = getDistance(1500);
+	private double maxDistance = getDistance(2000);
+	private double prevPicDist = 0;
+
+	public double getPrevPicDist() {
+		return prevPicDist;
+	}
+
+	public void setPrevPicDist(double prevPicDist) {
+		this.prevPicDist = prevPicDist;
+	}
+
+	public double getMinDistance() {
+		return minDistance;
+	}
+
+	public double getMaxDistance() {
+		return maxDistance;
+	}
 
 	private Container() {
 
@@ -165,12 +184,19 @@ public class Container {
 	}
 
 	public void resetList() {
+		
+		prevPicDist = top.getY() - bot.getY();
 
 		list = new DoubleLinkedList();
 		top = null;
 		bot = null;
 		left = null;
 		right = null;
+	}
+	
+	public double getDistance(double x) {
+		
+		return 2087.36015710060 * Math.exp((-0.302828015964803 * Math.pow(10, -2)) * x);
 	}
 
 }

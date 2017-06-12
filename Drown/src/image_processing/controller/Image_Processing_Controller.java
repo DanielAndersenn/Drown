@@ -26,15 +26,23 @@ public class Image_Processing_Controller implements Runnable{
 			ip = new Image_Processing(file);
 			
 			if (ip.fly_go_nogo()) {
-				// Pass command into commandque
-				CMDq.add(Command.CommandType.LAND, 0, 1);
-				MC.logWrite("Drone is centered PogChamp - GOGOGO");
+				
+				if (ip.distance()) {
+					
+					// Pass command into commandque
+					CMDq.add(Command.CommandType.LAND, 0, 1);
+					MC.logWrite("Drone is centered PogChamp - GOGOGO");
+				}
+				else {
+					// Fly backwards
+					CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
+					MC.logWrite("Distance NOT long enough. Moving back" );
+				}
 			}
 			else {
 				// Pass command into commandque
 				CMDq.add(ip.direction_to_fly(), 5, 1000);
 				MC.logWrite(("Cant fly through. Moving: " + ip.direction_to_fly().toString()));
-				
 			}
 			
 			/**

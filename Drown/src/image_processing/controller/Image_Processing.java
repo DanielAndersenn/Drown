@@ -28,6 +28,7 @@ public class Image_Processing {
 	 */
 	
 	private BufferedImage image;
+	private double distance;
 
 	/**
 	 * 
@@ -98,6 +99,16 @@ public class Image_Processing {
 				return Command.CommandType.MOVEDOWN;
 			}
 		}
+	}
+	
+	public boolean distance() {
+		
+		double x = Container.getInstance().getTop().getY() - Container.getInstance().getBot().getY();
+
+		if (x > Container.getInstance().getPrevPicDist())
+			return false;
+		else
+			return true;
 	}
 
 	// Metode til at generere data
