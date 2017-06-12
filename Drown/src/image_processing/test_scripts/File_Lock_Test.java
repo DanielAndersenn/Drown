@@ -1,6 +1,11 @@
 package image_processing.test_scripts;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import image_processing.singleton.File_Lock;
 import image_processing.controller.Image_Processing;
 
@@ -22,7 +27,7 @@ class consumer implements Runnable {
 		
 		System.out.println("Consumer : Begun waiting for file to be defined");
 		
-		File f = null;
+		BufferedImage f = null;
 		
 		while ((f = File_Lock.getInstance().take()) != null) {
 			
@@ -51,12 +56,13 @@ class consumer implements Runnable {
 class producer implements Runnable {
 
 	public void run() {
-		File importantInfo[] = {
-				new File("src/image_processing/test_data/left.png"),
-				new File("src/image_processing/test_data/right.png"),
-				new File("src/image_processing/test_data/top.png"),
-				new File("src/image_processing/test_data/bot.png"),
-				new File("src/image_processing/test_data/center.png")
+		try {
+		BufferedImage importantInfo[] = {
+				ImageIO.read(new File("src/image_processing/test_data/left.png")),
+				ImageIO.read(new File("src/image_processing/test_data/right.png")),
+				ImageIO.read(new File("src/image_processing/test_data/top.png")),
+				ImageIO.read(new File("src/image_processing/test_data/bot.png")),
+				ImageIO.read(new File("src/image_processing/test_data/center.png"))
 		};
 
 		for (int i = 0; i < importantInfo.length; i++) {
@@ -72,7 +78,10 @@ class producer implements Runnable {
 				// Empty
 			} // try/catch end
 		} // for end
-
+		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	} // run end
 
 } // producer end

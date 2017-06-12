@@ -1,7 +1,6 @@
 package image_processing.controller;
 
 import java.awt.image.BufferedImage;
-
 import application.MainController;
 import application.autonomy.CMDQueue;
 import application.autonomy.Command;
@@ -28,19 +27,21 @@ public class Image_Processing_Controller implements Runnable{
 			
 			if (ip.fly_go_nogo()) {
 				// Pass command into commandque
-				MC.logWrite("GOGOGO");
 				CMDq.add(Command.CommandType.LAND, 0, 1);
+				MC.logWrite("Drone is centered PogChamp - GOGOGO");
 			}
 			else {
 				// Pass command into commandque
-				
-				
 				CMDq.add(ip.direction_to_fly(), 5, 1000);
-				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
+				MC.logWrite(("Cant fly through. Moving: " + ip.direction_to_fly().toString()));
 				
 			}
 			
-			file = null;
+			/**
+			 * Tror ikke, at denne linje kode er afgørende for noget. While loopet burde vente på at
+			 * take() returnerer noget, før at den kigger på om file != null
+			 */
+//			file = null;
 		}
 	}
 }
