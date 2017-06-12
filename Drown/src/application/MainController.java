@@ -152,7 +152,7 @@ public class MainController  {
 		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
 		cmdQueue.start(200);
 		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
-		cmdQueue.add(Command.CommandType.HOVER, 0, 10000);
+		//cmdQueue.add(Command.CommandType.HOVER, 0, 10000);
 	}
 
 	// Method linked to onClick button "Connect to drone"

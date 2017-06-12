@@ -68,7 +68,6 @@ public class CMDQueue implements Runnable {
 			public void run() {
 
 				while(getRunning()) {
-					System.out.println(getList().isEmpty());
 					if(!getList().isEmpty()) {
 						busy = true;
 						final Command cmd = getList().remove();

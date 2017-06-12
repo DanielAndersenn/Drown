@@ -35,7 +35,7 @@ public class Image_Processing_Controller implements Runnable{
 				// Pass command into commandque
 				
 				
-				CMDq.add(ip.direction_to_fly(), 5, 1000);
+				CMDq.add(ip.direction_to_fly(), 15, 1000);
 				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
 				
 			}
