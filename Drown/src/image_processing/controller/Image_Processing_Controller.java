@@ -41,10 +41,12 @@ public class Image_Processing_Controller implements Runnable{
 					// Fly backwards
 					CMDq.add(Command.CommandType.MOVEBACKWARD, 5, 500); 
 					MC.logWrite("Distance NOT long enough. Moving back" );
+					
+					// Placement of this is still sketchy..
+					Container.getInstance().setPrevPicDist(Container.getInstance().getTop().getY() - 
+							Container.getInstance().getBot().getY());
 				}
 				
-				Container.getInstance().setPrevPicDist(Container.getInstance().getTop().getY() - 
-													   Container.getInstance().getBot().getY());
 			}
 			else {
 				// Pass command into commandque				
@@ -53,11 +55,6 @@ public class Image_Processing_Controller implements Runnable{
 				
 			}
 			
-			/**
-			 * Tror ikke, at denne linje kode er afgørende for noget. While loopet burde vente på at
-			 * take() returnerer noget, før at den kigger på om file != null
-			 */
-//			file = null;
 		}
 	}
 }
