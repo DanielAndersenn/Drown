@@ -18,6 +18,10 @@ public class Image_Processing {
 	 * Date: 9/6 '17 
 	 * @author Haugaard
 	 * 
+	 * Changed direction_to_fly() to properly return a commandtype (enum). Removed all uses of 
+	 * centerPolygon() since it was not necesarry.
+	 * Date 11/6  '17
+	 * @author haugaard
 	 * 
 	 */
 	

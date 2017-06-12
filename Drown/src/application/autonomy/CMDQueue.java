@@ -7,7 +7,6 @@ import application.autonomy.Command.CommandType;
 
 public class CMDQueue implements Runnable{
 
-
 	private final MainController mc;
 
 	private final CommandHandler cmdHandler;
