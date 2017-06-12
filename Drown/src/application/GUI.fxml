@@ -22,6 +22,9 @@
                   </Label>
                   <Label text="Label" />
                </children>
+               <HBox.margin>
+                  <Insets left="50.0" />
+               </HBox.margin>
             </VBox>
          </children>
       </HBox>

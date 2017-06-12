@@ -79,25 +79,9 @@ public class CommandHandler {
 		
 	}
 	
-	protected void moveDown(int speed, int duration){
-		mc.logWrite("SENT CMD ## moveDown ##");
-		mc.logWrite("Moving down for " + duration + "ms at " + speed + "mm/s");
-		
-		if(speed > 0 && duration > 0)
-		{
-			droneCMDM.down(speed).doFor(duration);
-		} else {
-			droneCMDM.down(speed);
-		}
-		
-		sleep(duration);
-		droneCMDM.hover();
-	}
-	
-	protected void moveUp(int speed, int duration){
+	protected void moveUp(int speed, int duration) {
 		mc.logWrite("SENT CMD ## moveUp ##");
 		mc.logWrite("Moving up for " + duration + "ms at " + speed + "mm/s");
-		
 		if(speed > 0 && duration > 0)
 		{
 			droneCMDM.up(speed).doFor(duration);
@@ -107,6 +91,78 @@ public class CommandHandler {
 		
 		sleep(duration);
 		droneCMDM.hover();
+		
+	}
+	
+	protected void moveDown(int speed, int duration) {
+		mc.logWrite("SENT CMD ## moveDown ##");
+		mc.logWrite("Moving down for " + duration + "ms at " + speed + "mm/s");
+		if(speed > 0 && duration > 0)
+		{
+			droneCMDM.down(speed).doFor(duration);
+		} else {
+			droneCMDM.down(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+		
+	}
+	
+	protected void moveForward(int speed, int duration) {
+		mc.logWrite("SENT CMD ## moveForward ##");
+		mc.logWrite("Moving forward for " + duration + "ms at " + speed + "mm/s");
+		if(speed > 0 && duration > 0) {
+			droneCMDM.forward(speed).doFor(duration);
+		} else {
+			droneCMDM.forward(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+		
+	}
+	
+	protected void moveBackward(int speed, int duration) {
+		mc.logWrite("SENT CMD ## moveBackward ##");
+		mc.logWrite("Moving backward for " + duration + "ms at " + speed + "mm/s");
+		if(speed > 0 && duration > 0) {
+			droneCMDM.backward(speed).doFor(duration);
+		} else {
+			droneCMDM.backward(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+		
+	}
+	
+	protected void spinRight(int speed, int duration) {
+		mc.logWrite("SEND CMD ## spinRight ##");
+		
+		if(speed > 0 && duration > 0) {
+			droneCMDM.spinRight(speed).doFor(duration);
+		} else {
+			droneCMDM.spinRight(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+		
+	}
+	
+	protected void spinLeft(int speed, int duration) {
+		mc.logWrite("SEND CMD ## spinRight ##");
+		
+		if(speed > 0 && duration > 0) {
+			droneCMDM.spinLeft(speed).doFor(duration);
+		} else {
+			droneCMDM.spinLeft(speed);
+		}
+		
+		sleep(duration);
+		droneCMDM.hover();
+		
 	}
 	
 

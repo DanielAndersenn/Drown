@@ -26,6 +26,7 @@ import com.google.zxing.Result;
 
 import application.autonomy.CMDQueue;
 import application.autonomy.CommandHandler;
+import application.autonomy.Command;
 import application.listeners.AttitudeListener;
 import application.listeners.BatteryListener;
 import application.listeners.ErrorListener;
@@ -40,6 +41,8 @@ import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.navdata.NavDataManager;
 import de.yadrone.base.video.ImageListener;
 import de.yadrone.base.video.xuggler.XugglerDecoder;
+import image_processing.controller.Image_Processing_Controller;
+import image_processing.singleton.File_Lock;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
@@ -113,12 +116,12 @@ public class MainController  {
 	// Scalar maxValues = new Scalar(6, 150, 160);
 
 	// Scalar values for webcam v paper ring
-	//Scalar minValues = new Scalar(1, 70, 70);
-	//Scalar maxValues = new Scalar(5, 255, 255);
+	Scalar minValues = new Scalar(1, 50, 50);
+	Scalar maxValues = new Scalar(5, 255, 255);
 	
 	//Scalar values for dronecam v paper ring
-	Scalar minValues = new Scalar(1, 50, 125);
-	Scalar maxValues = new Scalar(4, 150, 150);
+	//Scalar minValues = new Scalar(1, 50, 125);
+	//Scalar maxValues = new Scalar(4, 150, 150);
 	
 	
 	// Timers
@@ -140,19 +143,20 @@ public class MainController  {
 		this.frameGrabTimer = Executors.newSingleThreadScheduledExecutor();
 		this.frameGrabTimer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 
+	}
+	
+	// Method linked to onClick button "Start AI"
+	@FXML
+	private void startAI() {
+		
 		//Runnable to grab a frame and render circles every 5 seconds
 		Runnable houghGrabber = () -> {
 			findAndDrawCircle();
 		};
 
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 20, 5, TimeUnit.SECONDS);
-
-	}
-	
-	// Method linked to onClick button "Start AI"
-	@FXML
-	private void startAI() {
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 8, 8, TimeUnit.SECONDS);
+		
 		cmdQueue = new CMDQueue(this, new CommandHandler(this));
 		cmdQueue.start(500);
 		
@@ -172,7 +176,12 @@ public class MainController  {
 		cmdQueue.add(CMDQueue.CommandType.MOVERIGHT, 10, 1000);
 		cmdQueue.add(CMDQueue.CommandType.LAND, 0, 0);
 		cmdQueue.printQueuedCmds();
-		*/
+		
+		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
+		cmdQueue.start(200);
+		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
+		cmdQueue.add(Command.CommandType.HOVER, 0, 10000);
+	*/
 	}
 
 	// Method linked to onClick button "Connect to drone"
@@ -218,6 +227,7 @@ public class MainController  {
 	private void connectWB() {
 		
 		batteryLabel.setText("Cancer");
+		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
 		
 		refreshHSVUI();
 		this.capture.open(cameraId);
@@ -238,13 +248,14 @@ public class MainController  {
 		};
 
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 5, 5, TimeUnit.SECONDS);
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 10, 10, TimeUnit.SECONDS);
 
 	}
 	
 	@FXML
 	private void landDrone() {
-		drone.stop();
+		cmdQueue.add(Command.CommandType.LAND, 5, 500);
+		//add(Command.CommandType.LAND, 0, 0);
 	
 	}
 
@@ -295,7 +306,7 @@ public class MainController  {
 			Mat mask = new Mat();
 			Mat morphOutput = new Mat();
 
-			//Core.flip(frame, frame, 1);
+			Core.flip(frame, frame, 1);
 
 			Imgproc.blur(frame, blurredImage, new Size(7, 7));
 			Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
@@ -314,6 +325,7 @@ public class MainController  {
 	}
 
 	private void findAndDrawCircle() {
+		
 		System.out.println("Entered findAndDrawCircle");
 		BufferedImage houghFrame;
 		Mat frame = new Mat();
@@ -342,14 +354,11 @@ public class MainController  {
 			int r = 0;
 
 			for (int i = 0; i < circles.rows(); i++) {
-				System.out.println("Er vi i loop?");
 				double[] data = circles.get(i, 0);
 				for (int j = 0; j < data.length; j++) {
-					System.out.println("Er vi i loop2?");
 					x = data[0];
 					y = data[1];
 					r = (int) data[2];
-					System.out.println("Value of x: " + x + " y: " + y + " r: " + r);
 				}
 			}
 
@@ -357,9 +366,11 @@ public class MainController  {
 
 			Imgproc.circle(frame, center, r, new Scalar(255, 255, 255), 15);
 			Imgproc.circle(frame, center, 3, new Scalar(0, 0, 0), -1);
-
 			houghFrame = Utilities.matToBufferedImage(frame);
+			File_Lock.getInstance().put(houghFrame);
 			updateImageView(mainIW, SwingFXUtils.toFXImage(houghFrame, null));
+			
+			
 		}
 	}
 
