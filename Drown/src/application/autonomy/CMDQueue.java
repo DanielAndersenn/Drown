@@ -28,7 +28,7 @@ public class CMDQueue implements Runnable {
 
 
 	public boolean add(CommandType cType, int speed, int duration) {
-
+		mc.logWrite("## Added new command " +  cType + " ##");
 		return getList().add(new Command(cType, speed, duration));
 	}
 
@@ -122,7 +122,10 @@ public class CMDQueue implements Runnable {
 								mc.logWrite("DEFAULT CASE WHAT UP");
 								break;
 							}
+							
 						} // switch end
+						
+						mc.logWrite("Iterated through cmdQueue.run()" + cmd.cmd);
 					} else
 						try {
 							Thread.sleep(timeOut);
