@@ -15,12 +15,14 @@ public class Image_Processing {
 	/**
 	 * Returns true or false whether the drone is capable of passing through the ring - 
 	 * without touching the edges.
+	 * Implemented direction_to_fly() which eventually should return in which direction
+	 * the drone should move in order to capable of flying through the circle.
 	 * Date: 9/6 '17 
 	 * @author Haugaard
 	 * 
 	 * Changed direction_to_fly() to properly return a commandtype (enum). Removed all uses of 
 	 * centerPolygon() since it was not necesarry.
-	 * Date 11/6  '17
+	 * Date: 11/6  '17
 	 * @author haugaard
 	 * 
 	 */
