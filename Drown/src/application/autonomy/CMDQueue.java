@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import application.MainController;
 import application.autonomy.Command.CommandType;
 
-public class CMDQueue implements Runnable{
+public class CMDQueue implements Runnable {
 
 	private final MainController mc;
 
@@ -28,8 +28,8 @@ public class CMDQueue implements Runnable{
 
 
 	public boolean add(CommandType cType, int speed, int duration) {
-
-		return cmdQueue.add(new Command(cType, speed, duration));
+		mc.logWrite("## Added new command " +  cType + " ##");
+		return getList().add(new Command(cType, speed, duration));
 	}
 
 	public void printQueuedCmds(){
@@ -54,83 +54,105 @@ public class CMDQueue implements Runnable{
 	}
 
 	public void stop() {
-		running = false;
+
+		setRunning(false);
 	}
 
 
 	@Override
 	public void run() {
 		System.out.println("Entered run()");
-		running = true;
 
-		while(running) {
-			System.out.println(cmdQueue.isEmpty());
-			if(!cmdQueue.isEmpty()) {
-				busy = true;
-				final Command cmd = cmdQueue.remove();
+		setRunning(true);
 
-				switch(cmd.cmd) {
-					case TAKEOFF: {
-						cmdHandler.takeOff();
-						break;
-					}
-					case LAND: {
-						cmdHandler.land();
-						break;
-					}
-					case HOVER: {
-						cmdHandler.hover(cmd.duration);
-						break;
-					}
-					case MOVELEFT: {
-						cmdHandler.moveLeft(cmd.speed, cmd.duration);
-						break;
-					}
-					case MOVERIGHT: {
-						cmdHandler.moveRight(cmd.speed, cmd.duration);
-						break;
-					}
-					case MOVEUP: {
-						cmdHandler.moveUp(cmd.speed, cmd.duration);
-						break;
-					}
-					case MOVEDOWN: {
-						cmdHandler.moveDown(cmd.speed, cmd.duration);
-						break;
-					}
-					case MOVEFORWARD: {
-						cmdHandler.moveForward(cmd.speed, cmd.duration);
-						break;
-					}
-					case MOVEBACKWARD: {
-						cmdHandler.moveBackward(cmd.speed, cmd.duration);
-						break;
-					}
-					case SPINRIGHT: {
-						cmdHandler.spinRight(cmd.speed, cmd.duration);
-						break;
-					}
-					case SPINLEFT: {
-						cmdHandler.spinLeft(cmd.speed, cmd.duration);
-						break;
-					}
-					default: {
-						mc.logWrite("DEFAULT CASE WHAT UP");
-						break;
-					}
-				}
-			} 
-			else
-				try {
-					Thread.sleep(timeOut);
-				} catch (InterruptedException e) { }
+		Thread t1 = new Thread(new Runnable() {
+			public void run() {
 
-			busy = false;
-		}
+				while(getRunning()) {
+					if(!getList().isEmpty()) {
+						busy = true;
+						final Command cmd = getList().remove();
+
+						switch(cmd.cmd) {
+							case TAKEOFF: {
+								cmdHandler.takeOff();
+								break;
+							}
+							case LAND: {
+								cmdHandler.land();
+								break;
+							}
+							case HOVER: {
+								cmdHandler.hover(cmd.duration);
+								break;
+							}
+							case MOVELEFT: {
+								cmdHandler.moveLeft(cmd.speed, cmd.duration);
+								break;
+							}
+							case MOVERIGHT: {
+								cmdHandler.moveRight(cmd.speed, cmd.duration);
+								break;
+							}
+							case MOVEUP: {
+								cmdHandler.moveUp(cmd.speed, cmd.duration);
+								break;
+							}
+							case MOVEDOWN: {
+								cmdHandler.moveDown(cmd.speed, cmd.duration);
+								break;
+							}
+							case MOVEFORWARD: {
+								cmdHandler.moveForward(cmd.speed, cmd.duration);
+								break;
+							}
+							case MOVEBACKWARD: {
+								cmdHandler.moveBackward(cmd.speed, cmd.duration);
+								break;
+							}
+							case SPINRIGHT: {
+								cmdHandler.spinRight(cmd.speed, cmd.duration);
+								break;
+							}
+							case SPINLEFT: {
+								cmdHandler.spinLeft(cmd.speed, cmd.duration);
+								break;
+							}
+							default: {
+								mc.logWrite("DEFAULT CASE WHAT UP");
+								break;
+							}
+							
+						} // switch end
+						
+						mc.logWrite("Iterated through cmdQueue.run()" + cmd.cmd);
+					} else
+						try {
+							Thread.sleep(timeOut);
+						} catch (InterruptedException e) { }
+
+					busy = false;
+				} // while end
+			} // run end
+		}); // Thread end
+		t1.start();
 
 	}
 
+	private synchronized LinkedList<Command> getList() {
 
+		return cmdQueue;
+	}
+	
+	private synchronized boolean getRunning() {
+		
+		return running;
+	}
+	
+	private synchronized void setRunning(boolean r) {
+		
+		running = r;
+	}
 
 
 }

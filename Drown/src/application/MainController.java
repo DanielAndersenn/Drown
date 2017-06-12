@@ -3,30 +3,22 @@ package application;
 import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint3;
-import org.opencv.core.MatOfPoint3f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.video.BackgroundSubtractor;
-import org.opencv.video.Video;
 import org.opencv.videoio.VideoCapture;
-
-import com.google.zxing.Result;
 
 import application.autonomy.CMDQueue;
 import application.autonomy.CommandHandler;
 import application.autonomy.Command;
+import application.autonomy.Command.CommandType;
 import application.listeners.AttitudeListener;
 import application.listeners.BatteryListener;
 import application.listeners.ErrorListener;
@@ -155,20 +147,23 @@ public class MainController  {
 		};
 
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 8, 8, TimeUnit.SECONDS);
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 8, 5, TimeUnit.SECONDS);
 		
 		cmdQueue = new CMDQueue(this, new CommandHandler(this));
-		cmdQueue.start(500);
 		
-		dc = new DroneController(drone,this,cmdQueue);
+		//dc = new DroneController(drone,this,cmdQueue);
 
 		//QR reader
-		QRController qc = new QRController();
-		qc.addListener(dc);
-		drone.getVideoManager().addImageListener(qc);
-		
-		dc.start();
-		
+//		QRController qc = new QRController();
+//		qc.addListener(dc);
+//		drone.getVideoManager().addImageListener(qc);
+//		
+//		dc.start();
+//		
+		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
+		cmdQueue.start(200);
+		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
+		cmdQueue.add(Command.CommandType.MOVEUP, 30, 1500);
 		/*
 		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
 		cmdQueue.add(CMDQueue.CommandType.HOVER, 0, 10000);
@@ -177,11 +172,10 @@ public class MainController  {
 		cmdQueue.add(CMDQueue.CommandType.LAND, 0, 0);
 		cmdQueue.printQueuedCmds();
 		
-		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
-		cmdQueue.start(200);
-		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
-		cmdQueue.add(Command.CommandType.HOVER, 0, 10000);
-	*/
+
+		//cmdQueue.add(Command.CommandType.HOVER, 0, 10000);
+		 * 
+		 */
 	}
 
 	// Method linked to onClick button "Connect to drone"

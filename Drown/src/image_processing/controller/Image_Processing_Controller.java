@@ -31,9 +31,10 @@ public class Image_Processing_Controller implements Runnable{
 				MC.logWrite("Drone is centered PogChamp - GOGOGO");
 			}
 			else {
-				// Pass command into commandque
-				CMDq.add(ip.direction_to_fly(), 5, 1000);
-				MC.logWrite(("Cant fly through. Moving: " + ip.direction_to_fly().toString()));
+				// Pass command into commandque				
+				
+				CMDq.add(ip.direction_to_fly(), 15, 1000);
+				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
 				
 			}
 			
