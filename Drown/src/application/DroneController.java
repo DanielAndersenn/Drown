@@ -4,6 +4,7 @@ import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
 import application.autonomy.CMDQueue;
+import application.autonomy.Command;
 import de.yadrone.apps.paperchase.TagListener;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.LEDAnimation;
@@ -33,7 +34,7 @@ public class DroneController extends Thread implements TagListener {
 
 	
 	public void run(){
-		cmdq.add(CMDQueue.CommandType.TAKEOFF,0,0);
+		cmdq.add(Command.CommandType.TAKEOFF,0,0);
 //		drone.getCommandManager().takeOff();
 //		drone.getCommandManager().up(100).doFor(1000);
 //		drone.getCommandManager().hover();
@@ -101,25 +102,25 @@ public class DroneController extends Thread implements TagListener {
 		mc.logWrite("Floats: x = "+x+"| y = "+y);
 		if (x < (imgCenterX - Main.TOLERANCE)){
 //			drone.getCommandManager().goLeft(SPEED).doFor(SLEEP);
-			cmdq.add(CMDQueue.CommandType.MOVELEFT, SPEED, SLEEP);
+			cmdq.add(Command.CommandType.MOVELEFT, SPEED, SLEEP);
 //			mc.logWrite("going left.");
 			Thread.currentThread().sleep(SLEEP);
 
 		}else if (x > (imgCenterX + Main.TOLERANCE)){
 //			drone.getCommandManager().goRight(SPEED).doFor(SLEEP);
-			cmdq.add(CMDQueue.CommandType.MOVERIGHT, SPEED, SLEEP);
+			cmdq.add(Command.CommandType.MOVERIGHT, SPEED, SLEEP);
 //			mc.logWrite("going right.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y < (imgCenterY - Main.TOLERANCE)){
 //			drone.getCommandManager().forward(SPEED).doFor(SLEEP);
-			cmdq.add(CMDQueue.CommandType.MOVEUP, SPEED, SLEEP);
+			cmdq.add(Command.CommandType.MOVEUP, SPEED, SLEEP);
 //			mc.logWrite("going forward.");
 			Thread.currentThread().sleep(SLEEP);
 			
 		}else if (y > (imgCenterY + Main.TOLERANCE)){
 //			drone.getCommandManager().backward(SPEED).doFor(SLEEP);
-			cmdq.add(CMDQueue.CommandType.MOVEDOWN, SPEED, SLEEP);
+			cmdq.add(Command.CommandType.MOVEDOWN, SPEED, SLEEP);
 //			mc.logWrite("going backwards.");
 			Thread.currentThread().sleep(SLEEP);
 			
