@@ -36,19 +36,15 @@ public class Image_Processing_Controller implements Runnable{
 				}
 				else {
 					// Fly backwards
-					CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
+					CMDq.add(Command.CommandType.MOVEBACKWARD, 5, 500); 
 					MC.logWrite("Distance NOT long enough. Moving back" );
 				}
 			}
 			else {
 				// Pass command into commandque				
-				
-				CMDq.add(ip.direction_to_fly(), 15, 1000);
+				CMDq.add(ip.direction_to_fly(), 10, 1000);
 				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
 				
-				// Pass command into commandque
-				CMDq.add(ip.direction_to_fly(), 5, 1000);
-				MC.logWrite(("Cant fly through. Moving: " + ip.direction_to_fly().toString()));
 			}
 			
 			/**
