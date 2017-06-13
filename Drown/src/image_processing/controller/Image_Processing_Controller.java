@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import application.MainController;
 import application.autonomy.CMDQueue;
 import application.autonomy.Command;
+import image_processing.singleton.Container;
 import image_processing.singleton.File_Lock;
 
 public class Image_Processing_Controller implements Runnable{
@@ -30,24 +31,20 @@ public class Image_Processing_Controller implements Runnable{
 				if (ip.distance()) {
 					
 					// Pass command into commandque
-					CMDq.add(Command.CommandType.LAND, 0, 1);
-					MC.logWrite("Drone is centered PogChamp - GOGOGO");
+					//CMDq.add(Command.CommandType.LAND, 0, 1);
+					MC.logWrite("Drone is centered PogChamp - Flythrough now");
 				}
 				else {
 					// Fly backwards
-					CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
-					MC.logWrite("Distance NOT long enough. Moving back" );
+					//CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
+					MC.logWrite("Drone too close. Distance measured: " + Container.getInstance().getDistance(Container.getInstance().getTop().getY()-Container.getInstance().getBot().getY()) + "mm");
 				}
 			}
 			else {
 				// Pass command into commandque				
 				
-				CMDq.add(ip.direction_to_fly(), 15, 1000);
-				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
-				
-				// Pass command into commandque
-				CMDq.add(ip.direction_to_fly(), 5, 1000);
-				MC.logWrite(("Cant fly through. Moving: " + ip.direction_to_fly().toString()));
+				//CMDq.add(ip.direction_to_fly(), 15, 1000);
+				MC.logWrite(("Not centered. Moving: " + ip.direction_to_fly().toString()));
 			}
 			
 			/**

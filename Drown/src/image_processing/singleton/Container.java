@@ -184,9 +184,9 @@ public class Container {
 	}
 
 	public void resetList() {
-		
+		if(top != null) {
 		prevPicDist = top.getY() - bot.getY();
-
+		}
 		list = new DoubleLinkedList();
 		top = null;
 		bot = null;
