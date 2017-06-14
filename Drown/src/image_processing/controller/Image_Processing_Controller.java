@@ -31,20 +31,25 @@ public class Image_Processing_Controller implements Runnable{
 				if (ip.distance()) {
 					
 					// Pass command into commandque
-					//CMDq.add(Command.CommandType.LAND, 0, 1);
+//					CMDq.add(Command.CommandType.LAND, 0, 1);
+					CMDq.add(Command.CommandType.MOVEFORWARD, 100, 1500);
 					MC.logWrite("Drone is centered PogChamp - Flythrough now");
+					CMDq.stop();
 				}
 				else {
 					// Fly backwards
 					//CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
 					MC.logWrite("Drone too close. Distance measured: " + Container.getInstance().getDistance(Container.getInstance().getTop().getY()-Container.getInstance().getBot().getY()) + "mm");
+					CMDq.add(Command.CommandType.LAND, 0, 1);
+					CMDq.stop();
 				}
 			}
 			else {
 				// Pass command into commandque				
 				
-				//CMDq.add(ip.direction_to_fly(), 15, 1000);
+				CMDq.add(ip.direction_to_fly(), 10, 500);
 				MC.logWrite(("Not centered. Moving: " + ip.direction_to_fly().toString()));
+				
 			}
 			
 			/**

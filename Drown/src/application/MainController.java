@@ -27,6 +27,7 @@ import application.utilities.Utilities;
 import de.yadrone.apps.paperchase.TagListener;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
+import de.yadrone.base.command.CalibrationCommand;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
 import de.yadrone.base.exception.ARDroneException;
@@ -143,13 +144,15 @@ public class MainController  {
 	@FXML
 	private void startAI() {
 		
+		drone.getCommandManager().flatTrim();
+		
 		//Runnable to grab a frame and render circles every 5 seconds
 		Runnable houghGrabber = () -> {
 			findAndDrawCircle();
 		};
 
 		this.houghTimer = Executors.newSingleThreadScheduledExecutor();
-		this.houghTimer.scheduleAtFixedRate(houghGrabber, 8, 8, TimeUnit.SECONDS);
+		this.houghTimer.scheduleAtFixedRate(houghGrabber, 10, 5, TimeUnit.SECONDS);
 		
 		cmdQueue = new CMDQueue(this, new CommandHandler(this));
 		
@@ -164,8 +167,9 @@ public class MainController  {
 //		
 		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
 		cmdQueue.start(200);
-		//System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
-		//cmdQueue.add(Command.CommandType.MOVEUP, 30, 1500);
+		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
+		cmdQueue.add(Command.CommandType.MOVEUP, 50, 3000);
+		//cmdQueue.add(Command.CommandType.LAND, 0, 0);
 		/*
 		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
 		cmdQueue.add(CMDQueue.CommandType.HOVER, 0, 10000);
@@ -200,9 +204,10 @@ public class MainController  {
 
 			//Configure drone
 			drone.getCommandManager().setOutdoor(false, true);
-			drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P);
-			drone.setMaxAltitude(2800);
-			drone.setMinAltitude(1500);
+			//drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P);
+			drone.getCommandManager().setVideoCodecFps(30);
+			drone.setMaxAltitude(3500);
+			drone.setMinAltitude(1000);
 
 			drone.getVideoManager().addImageListener(new VideoListener(this));
 
@@ -252,6 +257,7 @@ public class MainController  {
 	private void landDrone() {
 		cmdQueue.add(Command.CommandType.LAND, 5, 500);
 		drone.stop();
+		cmdQueue.stop();
 		//add(Command.CommandType.LAND, 0, 0);
 	
 	}
@@ -333,17 +339,17 @@ public class MainController  {
 		Mat dest = new Mat();
 		
 		Imgproc.cvtColor(frame, grayImage, Imgproc.COLOR_BGR2GRAY);
-		Imgproc.blur(grayImage, detectedEdges, new Size(7,7));
-		
-		Imgproc.Canny(detectedEdges, detectedEdges, 25, 75, 3, false);
-		
-		Core.add(dest, Scalar.all(0), dest);
-		frame.copyTo(dest, detectedEdges);
+		Imgproc.blur(grayImage, detectedEdges, new Size(8,8));
 		
 		Core.flip(detectedEdges, detectedEdges, 1);
 		
-		maskFrame = Utilities.matToBufferedImage(frame);
+		maskFrame = Utilities.matToBufferedImage(detectedEdges);
 		updateImageView(maskIW, SwingFXUtils.toFXImage(maskFrame, null));
+		
+		Imgproc.Canny(detectedEdges, detectedEdges, 45, 135, 3, false);
+		
+		Core.add(dest, Scalar.all(0), dest);
+		frame.copyTo(dest, detectedEdges);
 
 		mainFrame = Utilities.matToBufferedImage(detectedEdges);
 		updateImageView(morphIW, SwingFXUtils.toFXImage(mainFrame, null));
@@ -368,18 +374,13 @@ public class MainController  {
 		if (newFrame != null) {
 
 			Core.flip(imageToDisplay, imageToDisplay, 1);
-			System.out.println("Test");
 			Imgproc.blur(frame, blurredImage, new Size(5, 5));
-			System.out.println("Test");
 			//Imgproc.cvtColor(blurredImage, hsvImage, Imgproc.COLOR_BGR2HSV);
 			
-			System.out.println("Test");
 			//Core.inRange(hsvImage, minValues, maxValues, mask);
 			// Imgproc.cvtColor(mask, hough, Imgproc.COLOR_BGR2GRAY);
-			System.out.println("Test");
 			Mat circles = new Mat();
-			System.out.println("Test");
-			Imgproc.HoughCircles(frame, circles, Imgproc.CV_HOUGH_GRADIENT, 2, 75, 25, 20, 50, 480);
+			Imgproc.HoughCircles(frame, circles, Imgproc.CV_HOUGH_GRADIENT, 2, 75, 25, 20, 50, 400);
 			System.out.println(circles);
 
 			System.out.println("#rows " + circles.rows() + " #cols " + circles.cols());
@@ -397,11 +398,21 @@ public class MainController  {
 			}
 
 			Point center = new Point(x, y);
-
+		
+		
+			//Draw circle on black background for direction processing
 			Imgproc.circle(bgFrame, center, r, new Scalar(255, 255, 255), 8);
-			Imgproc.circle(bgFrame, center, 3, new Scalar(0, 0, 0), -1);
-			houghFrame = Utilities.matToBufferedImage(bgFrame);
+			
+			//Put image to be processed into the relevant class
 			File_Lock.getInstance().put(Utilities.matToBufferedImage(bgFrame));
+			
+			//Draw circle and center on picture to be displayed as the MainView
+			Imgproc.circle(imageToDisplay, center, r, new Scalar(255, 255, 255), 8);
+			Imgproc.circle(imageToDisplay, center, 3, new Scalar(0, 0, 0), -1);
+			
+		
+			
+			houghFrame = Utilities.matToBufferedImage(imageToDisplay);
 			updateImageView(mainIW, SwingFXUtils.toFXImage(houghFrame, null));
 			
 			

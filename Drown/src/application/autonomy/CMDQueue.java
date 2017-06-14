@@ -125,7 +125,7 @@ public class CMDQueue implements Runnable {
 							
 						} // switch end
 						
-						mc.logWrite("Iterated through cmdQueue.run()" + cmd.cmd);
+						mc.logWrite("EXECUTED ##" + cmd.cmd +  " ##");
 					} else
 						try {
 							Thread.sleep(timeOut);
