@@ -54,7 +54,6 @@ public class Image_Processing_Controller implements Runnable{
 				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
 				
 			}
-			
 		}
 	}
 }
