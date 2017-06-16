@@ -168,7 +168,7 @@ public class MainController  {
 		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
 		cmdQueue.start(200);
 		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
-		cmdQueue.add(Command.CommandType.MOVEUP, 50, 3000);
+		cmdQueue.add(Command.CommandType.MOVEUP, 30, 3000);
 		//cmdQueue.add(Command.CommandType.LAND, 0, 0);
 		/*
 		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));
@@ -404,8 +404,9 @@ public class MainController  {
 			Imgproc.circle(bgFrame, center, r, new Scalar(255, 255, 255), 8);
 			
 			//Put image to be processed into the relevant class
+			System.out.println("Test 1");
 			File_Lock.getInstance().put(Utilities.matToBufferedImage(bgFrame));
-			
+			System.out.println("Test 2");
 			//Draw circle and center on picture to be displayed as the MainView
 			Imgproc.circle(imageToDisplay, center, r, new Scalar(255, 255, 255), 8);
 			Imgproc.circle(imageToDisplay, center, 3, new Scalar(0, 0, 0), -1);
@@ -473,7 +474,7 @@ public class MainController  {
 		return drone;
 	}
 
-	public void logWrite(String message) {
+	public synchronized void logWrite(String message) {
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
 		droneData.appendText("\n" + sdf.format(ts) + ": " + message);
 	}

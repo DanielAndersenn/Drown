@@ -18,7 +18,8 @@ public class CommandHandler {
 	}
 	
 	protected void takeOff() {
-		mc.logWrite("EXECUTING ## TAKEOFF ##");
+		System.out.println("EXECUTING ## TAKEOFF ##");
+		//mc.logWrite("EXECUTING ## TAKEOFF ##");
 		droneCMDM.takeOff();
 		droneCMDM.waitFor(2500);
 		sleep(2500);
@@ -29,7 +30,8 @@ public class CommandHandler {
 	}
 	
 	protected void land() {
-		mc.logWrite("EXECUTING ## LAND ##");
+		System.out.println("EXECUTING ## LAND ##");
+		//mc.logWrite("EXECUTING ## LAND ##");
 		
 		droneCMDM.landing();
 		droneCMDM.waitFor(2500);

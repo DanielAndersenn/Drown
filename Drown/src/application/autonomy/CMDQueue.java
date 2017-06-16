@@ -28,7 +28,8 @@ public class CMDQueue implements Runnable {
 
 
 	public boolean add(CommandType cType, int speed, int duration) {
-		mc.logWrite("## Added new command " +  cType + " ##");
+		System.out.println("## Added new command " +  cType + " ##");
+		//mc.logWrite("");
 		return getList().add(new Command(cType, speed, duration));
 	}
 
@@ -65,8 +66,8 @@ public class CMDQueue implements Runnable {
 
 		setRunning(true);
 
-		Thread t1 = new Thread(new Runnable() {
-			public void run() {
+		//Thread t1 = new Thread(new Runnable() {
+			//public void run() {
 
 				while(getRunning()) {
 					if(!getList().isEmpty()) {
@@ -125,7 +126,8 @@ public class CMDQueue implements Runnable {
 							
 						} // switch end
 						
-						mc.logWrite("EXECUTED ##" + cmd.cmd +  " ##");
+						//mc.logWrite("EXECUTED ##" + cmd.cmd +  " ##");
+						System.out.println("EXECUTED ##" + cmd.cmd +  " ##");
 					} else
 						try {
 							Thread.sleep(timeOut);
@@ -133,9 +135,9 @@ public class CMDQueue implements Runnable {
 
 					busy = false;
 				} // while end
-			} // run end
-		}); // Thread end
-		t1.start();
+			//} // run end
+		//}); // Thread end
+		//t1.start();
 
 	}
 

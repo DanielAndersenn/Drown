@@ -28,27 +28,31 @@ public class Image_Processing_Controller implements Runnable{
 			
 			if (ip.fly_go_nogo()) {
 				
-				if (ip.distance()) {
+				//if (ip.distance()) {
 					
 					// Pass command into commandque
-//					CMDq.add(Command.CommandType.LAND, 0, 1);
+					//CMDq.add(Command.CommandType.LAND, 0, 1);
 					CMDq.add(Command.CommandType.MOVEFORWARD, 100, 1500);
-					MC.logWrite("Drone is centered PogChamp - Flythrough now");
-					CMDq.stop();
-				}
+					System.out.println("Drone is centered PogChamp - Flythrough now");
+					CMDq.add(Command.CommandType.LAND, 0, 1);
+					//MC.logWrite();
+					
+				/*}
 				else {
 					// Fly backwards
-					//CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
-					MC.logWrite("Drone too close. Distance measured: " + Container.getInstance().getDistance(Container.getInstance().getTop().getY()-Container.getInstance().getBot().getY()) + "mm");
-					CMDq.add(Command.CommandType.LAND, 0, 1);
-					CMDq.stop();
-				}
+					CMDq.add(Command.CommandType.MOVEBACKWARD, 15, 500);
+					//MC.logWrite("Drone too close. Distance measured: " + Container.getInstance().getDistance(Container.getInstance().getTop().getY()-Container.getInstance().getBot().getY()) + "mm");
+					System.out.println("Drone too close. Distance measured: " + Container.getInstance().getDistance(Container.getInstance().getTop().getY()-Container.getInstance().getBot().getY()) + "mm");
+					//CMDq.add(Command.CommandType.LAND, 0, 1);
+					
+				}*/
 			}
 			else {
 				// Pass command into commandque				
 				
 				CMDq.add(ip.direction_to_fly(), 10, 500);
 				MC.logWrite(("Not centered. Moving: " + ip.direction_to_fly().toString()));
+				//System.out.println("Not centered. Moving: " + ip.direction_to_fly().toString());
 				
 			}
 			
