@@ -29,15 +29,17 @@ public class Image_Processing_Controller implements Runnable{
 			
 			if (ip.fly_go_nogo()) {
 				
-				if (ip.distance()) {
+				//if (ip.distance()) {
 					
 					// Pass command into commandque
+
 					CMDq.add(Command.CommandType.LAND, 0, 1);
 					MC.logWrite("Drone is centered PogChamp - GOGOGO");
 					Container.getInstance().setPrevPicDist(0);
 					Rings.getInstance().ringPassed();
-				}
-				else {
+			/*	}
+				
+			else {
 					// Fly backwards
 					CMDq.add(Command.CommandType.MOVEBACKWARD, 5, 500); 
 					MC.logWrite("Distance NOT long enough. Moving back" );
@@ -46,12 +48,15 @@ public class Image_Processing_Controller implements Runnable{
 					Container.getInstance().setPrevPicDist(Container.getInstance().getTop().getY() - 
 							Container.getInstance().getBot().getY());
 				}
-				
-			}
+				*/
+			} 
+			
 			else {
 				// Pass command into commandque				
-				CMDq.add(ip.direction_to_fly(), 10, 1000);
-				MC.logWrite(("Cant fly though. Moving: " + ip.direction_to_fly().toString()));
+				
+				CMDq.add(ip.direction_to_fly(), 10, 500);
+				MC.logWrite(("Not centered. Moving: " + ip.direction_to_fly().toString()));
+				//System.out.println("Not centered. Moving: " + ip.direction_to_fly().toString());
 				
 			}
 		}
