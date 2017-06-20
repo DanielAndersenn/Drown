@@ -168,7 +168,7 @@ public class MainController  {
 		(new Thread(new Image_Processing_Controller(this, cmdQueue))).start();
 		cmdQueue.start(200);
 		System.out.println("Boolean from .add: " + cmdQueue.add(Command.CommandType.TAKEOFF, 0, 0));
-		cmdQueue.add(Command.CommandType.MOVEUP, 30, 3000);
+		cmdQueue.add(Command.CommandType.MOVEUP, 40, 4000);
 		//cmdQueue.add(Command.CommandType.LAND, 0, 0);
 		/*
 		System.out.println("Boolean from .add: " + cmdQueue.add(CMDQueue.CommandType.TAKEOFF, 0, 0));

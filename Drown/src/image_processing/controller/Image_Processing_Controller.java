@@ -32,9 +32,9 @@ public class Image_Processing_Controller implements Runnable{
 					
 					// Pass command into commandque
 					//CMDq.add(Command.CommandType.LAND, 0, 1);
-					CMDq.add(Command.CommandType.MOVEFORWARD, 100, 1500);
+					CMDq.add(Command.CommandType.MOVEFORWARD, 100, 2000);
 					System.out.println("Drone is centered PogChamp - Flythrough now");
-					CMDq.add(Command.CommandType.LAND, 0, 1);
+					//CMDq.add(Command.CommandType.LAND, 0, 1);
 					//MC.logWrite();
 					
 				/*}
