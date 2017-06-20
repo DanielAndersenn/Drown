@@ -3,8 +3,6 @@ package image_processing.singleton;
 public class Rings {
 	
 	/**
-	 * THIS IS A CLASS REFERENCED BY MORE THAN JUST 1 CONTROLLER - NEW PACKAGE
-	 * 
 	 * Class to keep track of active ring and its dimension (height)
 	 */
 	

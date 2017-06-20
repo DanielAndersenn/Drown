@@ -7,12 +7,6 @@ import java.awt.image.BufferedImage;
  * Se eksemplet i linket til Java Concurrency (Guarded block)
  * https://docs.oracle.com/javase/tutorial/essential/concurrency/guardmeth.html
  * 
- * Hvis dette skal bruges korrekt, så tror jeg, at vores drone controller og 
- * image controller jeg kører i hver deres tråd, for at gøre dem i stand til at deles
- * om et Direction_lock object
- * 
- * file bliver overskrevet for hver gang at den sættes.
- * 
  * Da, det er et objekt fælles objekt som de 2 controllers skal deles om har jeg valgt, at lave
  * dette som en singletonklasse. 
  *

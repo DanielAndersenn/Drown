@@ -9,8 +9,6 @@ import image_processing.algorithms.Polygon;
 import image_processing.data.Pixel;
 
 public class Image_Processing {
-
-	// TODO ER DE 1000/900/800 MM INKL. ELLER EKLS. RINGEN?
 	
 	/**
 	 * Returns true or false whether the drone is capable of passing through the ring - 
